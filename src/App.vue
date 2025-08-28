@@ -61,25 +61,17 @@
                 <i class="fas fa-sign-in-alt me-1"></i>Login / Register
               </a>
             </li>
-            <li class="nav-item dropdown" v-if="currentUser">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="userDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-              >
+            <li class="nav-item" v-if="currentUser">
+              <span class="nav-link">
                 <i class="fas fa-user-circle me-1"></i>
                 {{ currentUser.name }}
                 <span class="badge bg-light text-dark ms-1">{{ currentUser.role }}</span>
+              </span>
+            </li>
+            <li class="nav-item" v-if="currentUser">
+              <a class="nav-link" href="#" @click="logout">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout
               </a>
-              <ul class="dropdown-menu">
-                <li>
-                  <a class="dropdown-item" href="#" @click="logout">
-                    <i class="fas fa-sign-out-alt me-2"></i>Logout
-                  </a>
-                </li>
-              </ul>
             </li>
           </ul>
         </div>
@@ -345,6 +337,22 @@
         </div>
       </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="footer bg-dark text-white mt-auto">
+      <div class="container py-4">
+        <div class="row">
+          <div class="col-md-6">
+            <h5><i class="fas fa-heart me-2"></i>WomenCare</h5>
+            <p class="mb-0">Empowering women's health through technology and community support.</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <p class="mb-1">Contact: support@womencare.com</p>
+            <p class="mb-0">&copy; 2024 WomenCare Platform. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -517,6 +525,20 @@ export default {
 </script>
 
 <style scoped>
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+.footer {
+  margin-top: auto;
+}
+
 .rating-stars i {
   transition: color 0.2s ease;
 }
