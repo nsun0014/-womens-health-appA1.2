@@ -1,557 +1,382 @@
 <template>
-  <div id="app">
-    <!-- Navigation Bar with Authentication -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div class="container">
-        <a class="navbar-brand" href="#"> <i class="fas fa-heart me-2"></i>WomenCare </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item" v-if="currentUser">
-              <a
-                class="nav-link"
-                :class="{ active: currentPage === 'dashboard' }"
-                href="#"
-                @click="currentPage = 'dashboard'"
-              >
-                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-              </a>
-            </li>
-            <li class="nav-item" v-if="currentUser">
-              <a
-                class="nav-link"
-                :class="{ active: currentPage === 'profile' }"
-                href="#"
-                @click="currentPage = 'profile'"
-              >
-                <i class="fas fa-user me-1"></i>Health Profile
-              </a>
-            </li>
-            <li class="nav-item" v-if="currentUser && currentUser.role === 'admin'">
-              <a
-                class="nav-link"
-                :class="{ active: currentPage === 'admin' }"
-                href="#"
-                @click="currentPage = 'admin'"
-              >
-                <i class="fas fa-cog me-1"></i>Admin Panel
-              </a>
-            </li>
-            <li class="nav-item" v-if="currentUser">
-              <a
-                class="nav-link"
-                :class="{ active: currentPage === 'rating' }"
-                href="#"
-                @click="currentPage = 'rating'"
-              >
-                <i class="fas fa-star me-1"></i>Rate Platform
-              </a>
-            </li>
-          </ul>
-          <ul class="navbar-nav">
-            <li class="nav-item" v-if="!currentUser">
-              <a class="nav-link" href="#" @click="currentPage = 'auth'">
-                <i class="fas fa-sign-in-alt me-1"></i>Login / Register
-              </a>
-            </li>
-            <li class="nav-item" v-if="currentUser">
-              <span class="nav-link">
-                <i class="fas fa-user-circle me-1"></i>
-                {{ currentUser.name }}
-                <span class="badge bg-light text-dark ms-1">{{ currentUser.role }}</span>
-              </span>
-            </li>
-            <li class="nav-item" v-if="currentUser">
-              <a class="nav-link" href="#" @click="logout">
-                <i class="fas fa-sign-out-alt me-1"></i>Logout
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+  <!-- Welcome Banner -->
+  <div class="bg-primary text-white py-3 mb-4">
+    <div class="container text-center">
+      <h3><i class="fas fa-user-shield me-2"></i>Welcome to WomenCare</h3>
+      <p class="mb-0">Join our community or sign in to access personalized health features</p>
+    </div>
+  </div>
 
-    <!-- Main Content -->
-    <main>
-      <!-- Authentication Page -->
-      <AuthSystem
-        v-if="currentPage === 'auth' && !currentUser"
-        @login-success="handleLoginSuccess"
-      />
-
-      <!-- Dashboard -->
-      <div v-if="currentPage === 'dashboard' && currentUser" class="container mt-4">
-        <div class="row">
-          <div class="col-12">
-            <h2>Welcome to Your Dashboard, {{ currentUser.name }}!</h2>
-            <div class="alert alert-info">
-              <i class="fas fa-info-circle me-2"></i>
-              You are logged in as: <strong>{{ currentUser.role }}</strong>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Stats -->
-        <div class="row">
-          <div class="col-md-3 mb-3">
-            <div class="card bg-primary text-white">
-              <div class="card-body text-center">
-                <i class="fas fa-users fa-2x mb-2"></i>
-                <h4>{{ platformStats.totalUsers }}</h4>
-                <small>Total Users</small>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 mb-3">
-            <div class="card bg-success text-white">
-              <div class="card-body text-center">
-                <i class="fas fa-file-medical fa-2x mb-2"></i>
-                <h4>{{ platformStats.healthProfiles }}</h4>
-                <small>Health Profiles</small>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 mb-3">
-            <div class="card bg-warning text-white">
-              <div class="card-body text-center">
-                <i class="fas fa-star fa-2x mb-2"></i>
-                <h4>{{ platformStats.averageRating.toFixed(1) }}</h4>
-                <small>Average Rating</small>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 mb-3">
-            <div class="card bg-info text-white">
-              <div class="card-body text-center">
-                <i class="fas fa-chart-line fa-2x mb-2"></i>
-                <h4>{{ platformStats.totalRatings }}</h4>
-                <small>Total Ratings</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Health Profile Form -->
-      <Form v-if="currentPage === 'profile' && currentUser" />
-
-      <!-- Admin Panel -->
-      <div
-        v-if="currentPage === 'admin' && currentUser && currentUser.role === 'admin'"
-        class="container mt-4"
-      >
-        <h2><i class="fas fa-cog me-2"></i>Admin Panel</h2>
-
-        <div class="card mb-4">
-          <div class="card-header">
-            <h5>User Management</h5>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Registered</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="user in allUsers" :key="user.id">
-                    <td>{{ user.name }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>
-                      <span
-                        class="badge"
-                        :class="user.role === 'admin' ? 'bg-danger' : 'bg-primary'"
-                      >
-                        {{ user.role }}
-                      </span>
-                    </td>
-                    <td>{{ formatDate(user.createdAt || '2024-01-01') }}</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-secondary" disabled>
-                        <i class="fas fa-edit"></i>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
+  <div class="container mt-4">
+    <!-- Login/Register Toggle -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-4">
         <div class="card">
-          <div class="card-header">
-            <h5>Platform Ratings Overview</h5>
+          <div class="card-header text-center">
+            <ul class="nav nav-tabs card-header-tabs">
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  :class="{ active: activeTab === 'login' }"
+                  @click="activeTab = 'login'"
+                >
+                  Login
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  :class="{ active: activeTab === 'register' }"
+                  @click="activeTab = 'register'"
+                >
+                  Register
+                </button>
+              </li>
+            </ul>
           </div>
           <div class="card-body">
-            <div class="row">
-              <div class="col-md-6">
-                <h6>Rating Distribution</h6>
-                <div v-for="rating in [5, 4, 3, 2, 1]" :key="rating" class="mb-2">
-                  <div class="d-flex align-items-center">
-                    <span class="me-2">{{ rating }} ★</span>
-                    <div class="progress flex-grow-1 me-2">
-                      <div
-                        class="progress-bar"
-                        :style="{ width: getRatingPercentage(rating) + '%' }"
-                      ></div>
-                    </div>
-                    <small>{{ getRatingCount(rating) }}</small>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <h6>Recent Ratings</h6>
-                <div class="list-group list-group-flush">
-                  <div
-                    class="list-group-item"
-                    v-for="rating in recentRatings.slice(0, 5)"
-                    :key="rating.id"
-                  >
-                    <div class="d-flex justify-content-between">
-                      <span>{{ rating.userName }}</span>
-                      <span>
-                        <span v-for="n in rating.score" :key="n">★</span>
-                        <span class="text-muted ms-1">{{ rating.date }}</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Rating System -->
-      <div v-if="currentPage === 'rating' && currentUser" class="container mt-4">
-        <div class="row justify-content-center">
-          <div class="col-md-8">
-            <div class="card">
-              <div class="card-header">
-                <h4><i class="fas fa-star me-2"></i>Rate Our Platform</h4>
-              </div>
-              <div class="card-body">
-                <div class="text-center mb-4">
-                  <h5>How would you rate your experience with WomenCare?</h5>
-                  <div class="rating-stars mb-3">
-                    <i
-                      v-for="n in 5"
-                      :key="n"
-                      :class="[
-                        'fas fa-star',
-                        { 'text-warning': n <= currentRating, 'text-muted': n > currentRating },
-                      ]"
-                      @click="setRating(n)"
-                      style="font-size: 2rem; cursor: pointer; margin: 0 5px"
-                    >
-                    </i>
-                  </div>
-                  <p class="text-muted">{{ getRatingText(currentRating) }}</p>
-                </div>
-
+            <!-- Login Form -->
+            <div v-if="activeTab === 'login'">
+              <h4 class="text-center mb-4">Login</h4>
+              <form @submit.prevent="login">
                 <div class="mb-3">
-                  <label class="form-label">Comments (Optional)</label>
-                  <textarea
+                  <label class="form-label">Email</label>
+                  <input
+                    type="email"
                     class="form-control"
-                    v-model="ratingComment"
-                    rows="3"
-                    placeholder="Tell us about your experience..."
-                  ></textarea>
+                    :class="{ 'is-invalid': loginErrors.email }"
+                    v-model="loginForm.email"
+                    required
+                  />
+                  <div v-if="loginErrors.email" class="invalid-feedback">
+                    {{ loginErrors.email }}
+                  </div>
                 </div>
-
-                <div class="text-center">
-                  <button
-                    class="btn btn-primary"
-                    @click="submitRating"
-                    :disabled="currentRating === 0"
-                  >
-                    <i class="fas fa-paper-plane me-2"></i>Submit Rating
-                  </button>
+                <div class="mb-3">
+                  <label class="form-label">Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    :class="{ 'is-invalid': loginErrors.password }"
+                    v-model="loginForm.password"
+                    required
+                  />
+                  <div v-if="loginErrors.password" class="invalid-feedback">
+                    {{ loginErrors.password }}
+                  </div>
                 </div>
-              </div>
+                <button type="submit" class="btn btn-primary w-100" :disabled="loginLoading">
+                  <span v-if="loginLoading" class="spinner-border spinner-border-sm me-2"></span>
+                  Login
+                </button>
+              </form>
             </div>
 
-            <!-- Platform Rating Summary -->
-            <div class="card mt-4">
-              <div class="card-header">
-                <h5>Platform Rating Summary</h5>
-              </div>
-              <div class="card-body">
-                <div class="row text-center">
-                  <div class="col-md-4">
-                    <h2 class="text-primary">{{ platformStats.averageRating.toFixed(1) }}</h2>
-                    <div class="mb-2">
-                      <span
-                        v-for="n in Math.floor(platformStats.averageRating)"
-                        :key="n"
-                        class="text-warning"
-                        >★</span
-                      >
-                      <span
-                        v-for="n in 5 - Math.floor(platformStats.averageRating)"
-                        :key="'empty-' + n"
-                        class="text-muted"
-                        >★</span
-                      >
-                    </div>
-                    <p class="text-muted">Average Rating</p>
-                  </div>
-                  <div class="col-md-4">
-                    <h2 class="text-success">{{ platformStats.totalRatings }}</h2>
-                    <p class="text-muted">Total Ratings</p>
-                  </div>
-                  <div class="col-md-4">
-                    <h2 class="text-info">{{ getRecommendationPercentage() }}%</h2>
-                    <p class="text-muted">Would Recommend</p>
+            <!-- Register Form -->
+            <div v-else>
+              <h4 class="text-center mb-4">Create Account</h4>
+              <form @submit.prevent="register">
+                <div class="mb-3">
+                  <label class="form-label">Full Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    :class="{ 'is-invalid': registerErrors.name }"
+                    v-model="registerForm.name"
+                    @blur="validateRegisterField('name')"
+                    required
+                  />
+                  <div v-if="registerErrors.name" class="invalid-feedback">
+                    {{ registerErrors.name }}
                   </div>
                 </div>
-              </div>
+                <div class="mb-3">
+                  <label class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    :class="{ 'is-invalid': registerErrors.email }"
+                    v-model="registerForm.email"
+                    @blur="validateRegisterField('email')"
+                    required
+                  />
+                  <div v-if="registerErrors.email" class="invalid-feedback">
+                    {{ registerErrors.email }}
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    :class="{ 'is-invalid': registerErrors.password }"
+                    v-model="registerForm.password"
+                    @blur="validateRegisterField('password')"
+                    required
+                  />
+                  <div v-if="registerErrors.password" class="invalid-feedback">
+                    {{ registerErrors.password }}
+                  </div>
+                  <div class="form-text">Password must be at least 6 characters long</div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Confirm Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    :class="{ 'is-invalid': registerErrors.confirmPassword }"
+                    v-model="registerForm.confirmPassword"
+                    @blur="validateRegisterField('confirmPassword')"
+                    required
+                  />
+                  <div v-if="registerErrors.confirmPassword" class="invalid-feedback">
+                    {{ registerErrors.confirmPassword }}
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Role</label>
+                  <select class="form-select" v-model="registerForm.role" required>
+                    <option value="">Select your role</option>
+                    <option value="user">User</option>
+                    <option value="admin">Administrator</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-success w-100" :disabled="registerLoading">
+                  <span v-if="registerLoading" class="spinner-border spinner-border-sm me-2"></span>
+                  Create Account
+                </button>
+              </form>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Access Denied Message -->
-      <div v-if="currentPage !== 'auth' && !currentUser" class="container mt-5">
-        <div class="row justify-content-center">
-          <div class="col-md-6 text-center">
-            <i class="fas fa-lock fa-5x text-muted mb-3"></i>
-            <h3>Access Required</h3>
-            <p class="text-muted mb-4">Please log in to access this feature.</p>
-            <button class="btn btn-primary" @click="currentPage = 'auth'">
-              <i class="fas fa-sign-in-alt me-2"></i>Login / Register
-            </button>
+        <!-- Demo Accounts Info -->
+        <div class="card mt-3">
+          <div class="card-body">
+            <h6 class="card-title">Demo Accounts</h6>
+            <small class="text-muted">
+              <strong>User:</strong> user@demo.com / password123<br />
+              <strong>Admin:</strong> admin@demo.com / admin123
+            </small>
           </div>
         </div>
       </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer bg-dark text-white mt-auto">
-      <div class="container py-4">
-        <div class="row">
-          <div class="col-md-6">
-            <h5><i class="fas fa-heart me-2"></i>WomenCare</h5>
-            <p class="mb-0">Empowering women's health through technology and community support.</p>
-          </div>
-          <div class="col-md-6 text-md-end">
-            <p class="mb-1">Contact: support@womencare.com</p>
-            <p class="mb-0">&copy; 2024 WomenCare Platform. All rights reserved.</p>
-          </div>
-        </div>
-      </div>
-    </footer>
+    </div>
   </div>
 </template>
 
-<script>
-import Form from './components/Form.vue'
-import AuthSystem from './components/AuthSystem.vue'
+<script setup>
+import { ref } from 'vue'
 
-export default {
-  name: 'App',
-  components: {
-    Form,
-    AuthSystem,
+const emit = defineEmits(['login-success'])
+
+const activeTab = ref('login')
+const loginLoading = ref(false)
+const registerLoading = ref(false)
+
+// Login form
+const loginForm = ref({
+  email: '',
+  password: '',
+})
+
+const loginErrors = ref({
+  email: '',
+  password: '',
+})
+
+// Register form
+const registerForm = ref({
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  role: '',
+})
+
+const registerErrors = ref({
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+})
+
+// Demo users for authentication
+const demoUsers = [
+  {
+    id: 1,
+    name: 'Demo User',
+    email: 'user@demo.com',
+    password: 'password123',
+    role: 'user',
   },
-  data() {
-    return {
-      currentPage: 'auth',
-      currentUser: null,
-      currentRating: 0,
-      ratingComment: '',
-      platformStats: {
-        totalUsers: 0,
-        healthProfiles: 0,
-        averageRating: 0,
-        totalRatings: 0,
-      },
-      allUsers: [],
-      recentRatings: [],
-    }
+  {
+    id: 2,
+    name: 'Admin User',
+    email: 'admin@demo.com',
+    password: 'admin123',
+    role: 'admin',
   },
-  computed: {
-    // XSS Protection: Sanitize user input
-    sanitizedUserName() {
-      if (!this.currentUser) return ''
-      return this.sanitizeInput(this.currentUser.name)
-    },
-  },
-  methods: {
-    // XSS Protection method
-    sanitizeInput(input) {
-      if (!input) return ''
-      return input
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-        .replace(/javascript:/gi, '')
-        .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
-        .replace(/[<>]/g, '')
-    },
+]
 
-    handleLoginSuccess(user) {
-      this.currentUser = user
-      this.currentPage = 'dashboard'
-      this.loadPlatformData()
-    },
-
-    logout() {
-      localStorage.removeItem('currentUser')
-      this.currentUser = null
-      this.currentPage = 'auth'
-    },
-
-    loadPlatformData() {
-      // Load users
-      const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
-      const demoUsers = [
-        { id: 1, name: 'Demo User', email: 'user@demo.com', role: 'user', createdAt: '2024-01-01' },
-        {
-          id: 2,
-          name: 'Admin User',
-          email: 'admin@demo.com',
-          role: 'admin',
-          createdAt: '2024-01-01',
-        },
-      ]
-      this.allUsers = [...demoUsers, ...registeredUsers]
-
-      // Load health profiles
-      const healthProfiles = JSON.parse(localStorage.getItem('healthProfiles') || '[]')
-
-      // Load ratings
-      const ratings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
-      this.recentRatings = ratings.sort((a, b) => new Date(b.date) - new Date(a.date))
-
-      // Calculate stats
-      this.platformStats = {
-        totalUsers: this.allUsers.length,
-        healthProfiles: healthProfiles.length,
-        averageRating: ratings.length
-          ? ratings.reduce((sum, r) => sum + r.score, 0) / ratings.length
-          : 0,
-        totalRatings: ratings.length,
+// Validation functions
+const validateRegisterField = (fieldName) => {
+  switch (fieldName) {
+    case 'name':
+      if (!registerForm.value.name || registerForm.value.name.length < 2) {
+        registerErrors.value.name = 'Name must be at least 2 characters'
+      } else {
+        registerErrors.value.name = ''
       }
-    },
-
-    setRating(rating) {
-      this.currentRating = rating
-    },
-
-    getRatingText(rating) {
-      const texts = {
-        0: 'Please select a rating',
-        1: 'Very Poor',
-        2: 'Poor',
-        3: 'Average',
-        4: 'Good',
-        5: 'Excellent',
+      break
+    case 'email':
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(registerForm.value.email)) {
+        registerErrors.value.email = 'Please enter a valid email'
+      } else {
+        registerErrors.value.email = ''
       }
-      return texts[rating] || ''
-    },
-
-    submitRating() {
-      if (this.currentRating === 0) return
-
-      const newRating = {
-        id: Date.now(),
-        userId: this.currentUser.id,
-        userName: this.sanitizeInput(this.currentUser.name),
-        score: this.currentRating,
-        comment: this.sanitizeInput(this.ratingComment),
-        date: new Date().toLocaleDateString(),
+      break
+    case 'password':
+      if (registerForm.value.password.length < 6) {
+        registerErrors.value.password = 'Password must be at least 6 characters'
+      } else {
+        registerErrors.value.password = ''
       }
+      break
+    case 'confirmPassword':
+      if (registerForm.value.password !== registerForm.value.confirmPassword) {
+        registerErrors.value.confirmPassword = 'Passwords do not match'
+      } else {
+        registerErrors.value.confirmPassword = ''
+      }
+      break
+  }
+}
 
-      const existingRatings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
+// XSS Protection function
+const sanitizeInput = (input) => {
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+}
 
-      // Remove previous rating from this user
-      const filteredRatings = existingRatings.filter((r) => r.userId !== this.currentUser.id)
-      filteredRatings.push(newRating)
+// Login function
+const login = async () => {
+  loginLoading.value = true
+  loginErrors.value = { email: '', password: '' }
 
-      localStorage.setItem('platformRatings', JSON.stringify(filteredRatings))
+  // Sanitize inputs for XSS protection
+  const sanitizedEmail = sanitizeInput(loginForm.value.email)
+  const sanitizedPassword = sanitizeInput(loginForm.value.password)
 
-      this.currentRating = 0
-      this.ratingComment = ''
-      this.loadPlatformData()
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      alert('Thank you for your rating!')
-    },
+  // Check against demo users and localStorage users
+  const savedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+  const allUsers = [...demoUsers, ...savedUsers]
 
-    getRatingPercentage(rating) {
-      const ratings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
-      if (ratings.length === 0) return 0
-      const count = ratings.filter((r) => r.score === rating).length
-      return (count / ratings.length) * 100
-    },
+  const user = allUsers.find((u) => u.email === sanitizedEmail && u.password === sanitizedPassword)
 
-    getRatingCount(rating) {
-      const ratings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
-      return ratings.filter((r) => r.score === rating).length
-    },
+  if (user) {
+    // Store current user
+    localStorage.setItem(
+      'currentUser',
+      JSON.stringify({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      }),
+    )
 
-    getRecommendationPercentage() {
-      const ratings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
-      if (ratings.length === 0) return 0
-      const positiveRatings = ratings.filter((r) => r.score >= 4).length
-      return Math.round((positiveRatings / ratings.length) * 100)
-    },
+    emit('login-success', user)
+    alert(`Welcome ${user.name}! You are logged in as ${user.role}.`)
+  } else {
+    loginErrors.value.email = 'Invalid email or password'
+    loginErrors.value.password = 'Invalid email or password'
+  }
 
-    formatDate(dateString) {
-      return new Date(dateString).toLocaleDateString()
-    },
-  },
+  loginLoading.value = false
+}
 
-  mounted() {
-    // Check if user is already logged in
-    const savedUser = localStorage.getItem('currentUser')
-    if (savedUser) {
-      this.currentUser = JSON.parse(savedUser)
-      this.currentPage = 'dashboard'
-    }
-    this.loadPlatformData()
-  },
+// Register function
+const register = async () => {
+  // Validate all fields
+  Object.keys(registerErrors.value).forEach((field) => {
+    validateRegisterField(field)
+  })
+
+  // Check if any errors exist
+  const hasErrors = Object.values(registerErrors.value).some((error) => error !== '')
+  if (hasErrors) return
+
+  registerLoading.value = true
+
+  // Sanitize inputs for XSS protection
+  const sanitizedData = {
+    name: sanitizeInput(registerForm.value.name),
+    email: sanitizeInput(registerForm.value.email),
+    password: sanitizeInput(registerForm.value.password),
+    role: registerForm.value.role,
+  }
+
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 1500))
+
+  // Save to localStorage
+  const savedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+  const newUser = {
+    id: Date.now(),
+    ...sanitizedData,
+    createdAt: new Date().toISOString(),
+  }
+
+  savedUsers.push(newUser)
+  localStorage.setItem('registeredUsers', JSON.stringify(savedUsers))
+
+  alert(`Account created successfully! You can now login with ${newUser.email}`)
+
+  // Switch to login tab and clear form
+  activeTab.value = 'login'
+  registerForm.value = {
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    role: '',
+  }
+  registerErrors.value = {
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  }
+
+  registerLoading.value = false
 }
 </script>
 
 <style scoped>
-#app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.bg-primary {
+  background: linear-gradient(135deg, #e91e63, #ad1457) !important;
 }
 
-main {
-  flex: 1;
+.nav-tabs .nav-link {
+  border: none;
+  color: #6c757d;
 }
 
-.footer {
-  margin-top: auto;
-}
-
-.rating-stars i {
-  transition: color 0.2s ease;
-}
-
-.rating-stars i:hover {
-  color: #ffc107 !important;
-}
-
-.progress {
-  height: 20px;
+.nav-tabs .nav-link.active {
+  background-color: transparent;
+  border-bottom: 2px solid #0d6efd;
+  color: #0d6efd;
+  font-weight: 600;
 }
 
 .card {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>

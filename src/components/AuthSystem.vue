@@ -1,4 +1,15 @@
 <template>
+  <template>
+  <!-- Welcome Banner -->
+  <div class="bg-primary text-white py-3 mb-4">
+    <div class="container text-center">
+      <h3><i class="fas fa-user-shield me-2"></i>Welcome to WomenCare</h3>
+      <p class="mb-0">Join our community or sign in to access personalized health features</p>
+    </div>
+  </div>
+
+  <div class="container mt-4">
+
   <div class="container mt-4">
     <!-- Login/Register Toggle -->
     <div class="row justify-content-center">
