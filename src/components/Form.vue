@@ -1,3 +1,4 @@
+<!-- Enhanced Women's Health Profile Form with improved UX -->
 <template>
   <div class="container mt-4">
     <!-- Progress indicator showing form completion -->
@@ -12,6 +13,17 @@
           >
             {{ Math.round(formProgress) }}%
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Health Tips Section -->
+    <div class="alert alert-info mb-4">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-lightbulb me-3" style="font-size: 1.5rem"></i>
+        <div>
+          <h6 class="mb-1">Daily Health Tip</h6>
+          <p class="mb-0">{{ currentHealthTip }}</p>
         </div>
       </div>
     </div>
@@ -323,6 +335,18 @@
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
+
+// Health tips array
+const healthTips = ref([
+  'Stay hydrated by drinking at least 8 glasses of water daily.',
+  'Take a 10-minute walk after meals to aid digestion.',
+  'Practice deep breathing exercises to reduce stress levels.',
+  'Aim for 7-9 hours of quality sleep each night.',
+  'Include colorful fruits and vegetables in every meal.',
+  'Schedule regular health check-ups with your healthcare provider.',
+])
+
+const currentHealthTip = ref(healthTips.value[0])
 
 // Reactive data
 const formData = ref({
@@ -721,6 +745,10 @@ onMounted(() => {
       localStorage.removeItem('healthProfiles')
     }
   }
+
+  // Set random health tip
+  const randomIndex = Math.floor(Math.random() * healthTips.value.length)
+  currentHealthTip.value = healthTips.value[randomIndex]
 })
 </script>
 
