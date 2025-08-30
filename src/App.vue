@@ -459,14 +459,12 @@ export default {
     }
   },
   computed: {
-    // XSS Protection: Sanitize user input
     sanitizedUserName() {
       if (!this.currentUser) return ''
       return this.sanitizeInput(this.currentUser.name)
     },
   },
   methods: {
-    // XSS Protection method
     sanitizeInput(input) {
       if (!input) return ''
       return input
@@ -489,7 +487,6 @@ export default {
     },
 
     loadPlatformData() {
-      // Load users
       const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
       const demoUsers = [
         { id: 1, name: 'Demo User', email: 'user@demo.com', role: 'user', createdAt: '2024-01-01' },
@@ -503,14 +500,11 @@ export default {
       ]
       this.allUsers = [...demoUsers, ...registeredUsers]
 
-      // Load health profiles
       const healthProfiles = JSON.parse(localStorage.getItem('healthProfiles') || '[]')
 
-      // Load ratings
       const ratings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
       this.recentRatings = ratings.sort((a, b) => new Date(b.date) - new Date(a.date))
 
-      // Calculate stats
       this.platformStats = {
         totalUsers: this.allUsers.length,
         healthProfiles: healthProfiles.length,
@@ -560,7 +554,6 @@ export default {
 
       const existingRatings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
 
-      // Remove previous rating from this user
       const filteredRatings = existingRatings.filter((r) => r.userId !== this.currentUser.id)
       filteredRatings.push(newRating)
 
@@ -570,7 +563,7 @@ export default {
       this.ratingComment = ''
       this.loadPlatformData()
 
-      alert('Thank you for your rating!')
+      this.showMobileNotification('Thank you for your rating!')
     },
 
     getRatingPercentage(rating) {
@@ -595,10 +588,30 @@ export default {
     formatDate(dateString) {
       return new Date(dateString).toLocaleDateString()
     },
+
+    showMobileNotification(message) {
+      if (window.innerWidth <= 768) {
+        const notification = document.createElement('div')
+        notification.className = 'mobile-notification'
+        notification.innerHTML = `
+          <button class="close-btn" onclick="this.parentElement.remove()">&times;</button>
+          <strong>Success!</strong> ${message}
+        `
+        const appRoot = document.getElementById('app') || document.body
+        appRoot.appendChild(notification)
+
+        setTimeout(() => notification.classList.add('show'), 100)
+        setTimeout(() => {
+          notification.classList.remove('show')
+          setTimeout(() => notification.remove(), 300)
+        }, 3000)
+      } else {
+        alert(message)
+      }
+    },
   },
 
   mounted() {
-    // Check if user is already logged in
     const savedUser = localStorage.getItem('currentUser')
     if (savedUser) {
       this.currentUser = JSON.parse(savedUser)
@@ -638,5 +651,63 @@ main {
 
 .card {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile Navigation Improvements */
+@media (max-width: 991.98px) {
+  .navbar-nav {
+    padding: 1rem 0;
+  }
+
+  .navbar-nav .nav-item {
+    margin: 0.25rem 0;
+  }
+
+  .navbar-nav .nav-link {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin: 0.25rem 0;
+    transition: background-color 0.3s ease;
+  }
+
+  .navbar-nav .nav-link:hover,
+  .navbar-nav .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+}
+
+/* Toast notification for mobile (global) */
+:global(.mobile-notification) {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  left: 20px;
+  z-index: 9999;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+:global(.mobile-notification.show) {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+:global(.mobile-notification .close-btn) {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  float: right;
+  cursor: pointer;
 }
 </style>
