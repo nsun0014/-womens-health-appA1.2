@@ -173,6 +173,20 @@
               Reset Form
             </button>
           </div>
+
+          <!-- Success Animation -->
+          <div v-if="showSuccessAnimation" class="alert alert-success mt-3 fade-in">
+            <div class="d-flex align-items-center">
+              <div class="success-icon me-3">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div>
+                <strong>Success!</strong> Your health profile has been saved securely.
+                <br />
+                <small>You can view it in the saved profiles section below.</small>
+              </div>
+            </div>
+          </div>
         </form>
       </div>
     </div>
@@ -347,6 +361,7 @@ const healthTips = ref([
 ])
 
 const currentHealthTip = ref(healthTips.value[0])
+const showSuccessAnimation = ref(false)
 
 // Reactive data
 const formData = ref({
@@ -678,8 +693,11 @@ const submitForm = async () => {
   resetForm()
   isSubmitting.value = false
 
-  // Success notification
-  showNotification('Profile saved successfully!', 'success')
+  // Show success animation
+  showSuccessAnimation.value = true
+  setTimeout(() => {
+    showSuccessAnimation.value = false
+  }, 4000)
 
   // Scroll to saved profiles
   await nextTick()
@@ -717,11 +735,6 @@ const deleteProfile = (index) => {
       currentPage.value = totalPages.value
     }
   }
-}
-
-const showNotification = (message, type = 'info') => {
-  // In a real app, this would show a toast notification
-  alert(message)
 }
 
 // Watchers
@@ -796,6 +809,43 @@ onMounted(() => {
 .btn-group .btn.active {
   background-color: #0d6efd;
   color: white;
+}
+
+.success-icon {
+  font-size: 2rem;
+  color: #28a745;
+  animation: bounce 0.6s ease-in-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 768px) {

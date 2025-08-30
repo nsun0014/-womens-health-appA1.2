@@ -1,5 +1,4 @@
 <template>
-  <template>
   <!-- Welcome Banner -->
   <div class="bg-primary text-white py-3 mb-4">
     <div class="container text-center">
@@ -7,8 +6,6 @@
       <p class="mb-0">Join our community or sign in to access personalized health features</p>
     </div>
   </div>
-
-  <div class="container mt-4">
 
   <div class="container mt-4">
     <!-- Login/Register Toggle -->
@@ -363,6 +360,10 @@ const register = async () => {
 </script>
 
 <style scoped>
+.bg-primary {
+  background: linear-gradient(135deg, #e91e63, #ad1457) !important;
+}
+
 .nav-tabs .nav-link {
   border: none;
   color: #6c757d;
