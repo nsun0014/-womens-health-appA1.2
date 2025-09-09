@@ -312,93 +312,10 @@
       <Form v-if="currentPage === 'profile' && currentUser" />
 
       <!-- Rating System - All authenticated users -->
-      <div v-if="currentPage === 'rating' && currentUser" class="container mt-4">
-        <div class="row justify-content-center">
-          <div class="col-md-8">
-            <div class="card">
-              <div class="card-header">
-                <h4><i class="fas fa-star me-2"></i>Rate Our Platform</h4>
-              </div>
-              <div class="card-body">
-                <div class="text-center mb-4">
-                  <h5>How would you rate your experience with WomenCare?</h5>
-                  <div class="rating-stars mb-3">
-                    <i
-                      v-for="n in 5"
-                      :key="n"
-                      :class="[
-                        'fas fa-star',
-                        { 'text-warning': n <= currentRating, 'text-muted': n > currentRating },
-                      ]"
-                      @click="setRating(n)"
-                      style="font-size: 2rem; cursor: pointer; margin: 0 5px"
-                    >
-                    </i>
-                  </div>
-                  <p class="text-muted">{{ getRatingText(currentRating) }}</p>
-                </div>
-
-                <div class="mb-3">
-                  <label class="form-label">Comments (Optional)</label>
-                  <textarea
-                    class="form-control"
-                    v-model="ratingComment"
-                    rows="3"
-                    placeholder="Tell us about your experience..."
-                  ></textarea>
-                </div>
-
-                <div class="text-center">
-                  <button
-                    class="btn btn-primary"
-                    @click="submitRating"
-                    :disabled="currentRating === 0"
-                  >
-                    <i class="fas fa-paper-plane me-2"></i>Submit Rating
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Platform Rating Summary -->
-            <div class="card mt-4">
-              <div class="card-header">
-                <h5>Platform Rating Summary</h5>
-              </div>
-              <div class="card-body">
-                <div class="row text-center">
-                  <div class="col-md-4">
-                    <h2 class="text-primary">{{ adminStats.averageRating.toFixed(1) }}</h2>
-                    <div class="mb-2">
-                      <span
-                        v-for="n in Math.floor(adminStats.averageRating)"
-                        :key="n"
-                        class="text-warning"
-                        >★</span
-                      >
-                      <span
-                        v-for="n in 5 - Math.floor(adminStats.averageRating)"
-                        :key="'empty-' + n"
-                        class="text-muted"
-                        >★</span
-                      >
-                    </div>
-                    <p class="text-muted">Average Rating</p>
-                  </div>
-                  <div class="col-md-4">
-                    <h2 class="text-success">{{ adminStats.totalRatings }}</h2>
-                    <p class="text-muted">Total Ratings</p>
-                  </div>
-                  <div class="col-md-4">
-                    <h2 class="text-info">{{ getRecommendationPercentage() }}%</h2>
-                    <p class="text-muted">Would Recommend</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <RatingSystem
+        v-if="currentPage === 'rating' && currentUser"
+        @rating-updated="handleRatingUpdate"
+      />
 
       <!-- Reports Page - All authenticated users with role-specific content -->
       <div v-if="currentPage === 'reports' && currentUser" class="container mt-4">
@@ -417,7 +334,6 @@
                   <i class="fas fa-info-circle me-2"></i>
                   Personal reports show your health profile data and rating history.
                 </div>
-                <!-- User-specific report content would go here -->
                 <button class="btn btn-primary" disabled>
                   <i class="fas fa-download me-1"></i>Download My Report
                 </button>
@@ -644,19 +560,19 @@
 <script>
 import Form from './components/Form.vue'
 import AuthSystem from './components/AuthSystem.vue'
+import RatingSystem from './components/RatingSystem.vue'
 
 export default {
   name: 'App',
   components: {
     Form,
     AuthSystem,
+    RatingSystem,
   },
   data() {
     return {
       currentPage: 'auth',
       currentUser: null,
-      currentRating: 0,
-      ratingComment: '',
       accessDenied: false,
       accessDeniedMessage: '',
       adminStats: {
@@ -675,22 +591,14 @@ export default {
     }
   },
   computed: {
-    // Role-based computed properties
     isAdmin() {
       return this.currentUser && this.currentUser.role === 'admin'
     },
-
     isUser() {
       return this.currentUser && this.currentUser.role === 'user'
     },
-
-    sanitizedUserName() {
-      if (!this.currentUser) return ''
-      return this.sanitizeInput(this.currentUser.name)
-    },
   },
   methods: {
-    // Enhanced XSS Protection
     sanitizeInput(input) {
       if (!input) return ''
       return input
@@ -700,50 +608,36 @@ export default {
         .replace(/[<>]/g, '')
     },
 
-    // Role-based Navigation with Access Control
     navigateTo(page) {
-      // Check access permissions before navigation
       if (!this.hasAccessToPage(page)) {
         this.showAccessDenied(page)
         return
       }
-
       this.currentPage = page
       this.accessDenied = false
     },
 
-    // Access Control Logic
     hasAccessToPage(page) {
-      // Public pages - no authentication required
       const publicPages = ['auth']
       if (publicPages.includes(page)) {
         return true
       }
-
-      // All other pages require authentication
       if (!this.currentUser) {
         return false
       }
-
-      // Pages available to all authenticated users
       const userPages = ['dashboard', 'profile', 'rating', 'reports']
       if (userPages.includes(page)) {
         return true
       }
-
-      // Admin-only pages
       const adminPages = ['admin', 'userManagement']
       if (adminPages.includes(page)) {
         return this.currentUser.role === 'admin'
       }
-
       return false
     },
 
-    // Show Access Denied Message
     showAccessDenied(page) {
       this.accessDenied = true
-
       if (!this.currentUser) {
         this.accessDeniedMessage = 'You must be logged in to access this page.'
       } else if (page === 'admin' || page === 'userManagement') {
@@ -753,7 +647,6 @@ export default {
       }
     },
 
-    // Role Display Helpers
     getUserRoleDisplay(role) {
       const roleMap = {
         user: 'User',
@@ -770,7 +663,6 @@ export default {
       return classMap[role] || 'bg-secondary'
     },
 
-    // Get User Permissions
     getUserPermissions(role) {
       const permissions = {
         user: [
@@ -778,21 +670,17 @@ export default {
           'Create health profiles',
           'Rate platform',
           'View personal reports',
-          'Update account settings',
         ],
         admin: [
           'All user permissions',
           'Manage all users',
           'Access admin panel',
           'View system analytics',
-          'Manage platform settings',
-          'Export system reports',
         ],
       }
       return permissions[role] || []
     },
 
-    // User Statistics
     getRegularUsersCount() {
       return this.allUsers.filter((user) => user.role === 'user').length
     },
@@ -801,19 +689,16 @@ export default {
       return this.allUsers.filter((user) => user.role === 'admin').length
     },
 
-    // View User Details (Admin function)
     viewUserDetails(user) {
       if (!this.isAdmin) {
         this.showAccessDenied('userManagement')
         return
       }
-
       alert(
         `User Details:\nName: ${user.name}\nEmail: ${user.email}\nRole: ${this.getUserRoleDisplay(user.role)}\nJoined: ${this.formatDate(user.createdAt || '2024-01-01')}`,
       )
     },
 
-    // Authentication Handlers
     handleLoginSuccess(user) {
       this.currentUser = user
       this.currentPage = 'dashboard'
@@ -821,20 +706,19 @@ export default {
       this.loadUserStats()
     },
 
-    logout() {
-      // Log security event
-      this.logSecurityEvent('user_logout', {
-        userId: this.currentUser?.id,
-        userRole: this.currentUser?.role,
-      })
+    handleRatingUpdate(newRating) {
+      this.loadPlatformData()
+      this.loadUserStats()
+      this.showMobileNotification('Rating submitted successfully!')
+    },
 
+    logout() {
       localStorage.removeItem('currentUser')
       this.currentUser = null
       this.currentPage = 'auth'
       this.accessDenied = false
     },
 
-    // Data Loading Functions
     loadPlatformData() {
       const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
       const demoUsers = [
@@ -869,11 +753,9 @@ export default {
       const healthProfiles = JSON.parse(localStorage.getItem('healthProfiles') || '[]')
       const ratings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
 
-      // Calculate user-specific stats
       const userProfiles = healthProfiles.filter((p) => p.email === this.currentUser.email).length
       const userRatings = ratings.filter((r) => r.userId === this.currentUser.id).length
 
-      // Calculate days since joined
       const joinDate = this.currentUser.createdAt
         ? new Date(this.currentUser.createdAt)
         : new Date()
@@ -886,102 +768,25 @@ export default {
       }
     },
 
-    // Rating System
-    setRating(rating) {
-      this.currentRating = rating
-    },
-
-    getRatingText(rating) {
-      const texts = {
-        0: 'Please select a rating',
-        1: 'Very Poor',
-        2: 'Poor',
-        3: 'Average',
-        4: 'Good',
-        5: 'Excellent',
-      }
-      return texts[rating] || ''
-    },
-
-    submitRating() {
-      if (this.currentRating === 0 || !this.currentUser) return
-
-      const newRating = {
-        id: Date.now(),
-        userId: this.currentUser.id,
-        userName: this.sanitizeInput(this.currentUser.name),
-        score: this.currentRating,
-        comment: this.sanitizeInput(this.ratingComment),
-        date: new Date().toLocaleDateString(),
-      }
-
-      const existingRatings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
-      const filteredRatings = existingRatings.filter((r) => r.userId !== this.currentUser.id)
-      filteredRatings.push(newRating)
-
-      localStorage.setItem('platformRatings', JSON.stringify(filteredRatings))
-
-      this.currentRating = 0
-      this.ratingComment = ''
-      this.loadPlatformData()
-      this.loadUserStats()
-
-      this.showMobileNotification('Thank you for your rating!')
-    },
-
-    getRecommendationPercentage() {
-      const ratings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
-      if (ratings.length === 0) return 0
-      const positiveRatings = ratings.filter((r) => r.score >= 4).length
-      return Math.round((positiveRatings / ratings.length) * 100)
-    },
-
-    // Utility Functions
     formatDate(dateString) {
       return new Date(dateString).toLocaleDateString()
     },
 
     showMobileNotification(message) {
-      if (window.innerWidth <= 768) {
-        const notification = document.createElement('div')
-        notification.className = 'mobile-notification'
-        notification.innerHTML = `
-          <button class="close-btn" onclick="this.parentElement.remove()">&times;</button>
-          <strong>Success!</strong> ${message}
-        `
-        const appRoot = document.getElementById('app') || document.body
-        appRoot.appendChild(notification)
+      const notification = document.createElement('div')
+      notification.className = 'alert alert-success position-fixed'
+      notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;'
+      notification.innerHTML = `
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+        <div><i class="fas fa-check-circle me-2"></i>${message}</div>
+      `
+      document.body.appendChild(notification)
 
-        setTimeout(() => notification.classList.add('show'), 100)
-        setTimeout(() => {
-          notification.classList.remove('show')
-          setTimeout(() => notification.remove(), 300)
-        }, 3000)
-      } else {
-        alert(message)
-      }
-    },
-
-    // Security Logging
-    logSecurityEvent(eventType, details = {}) {
-      const logEntry = {
-        timestamp: new Date().toISOString(),
-        type: eventType,
-        userAgent: navigator.userAgent,
-        url: window.location.href,
-        details: this.sanitizeInput(JSON.stringify(details)),
-      }
-
-      console.warn('Security Event:', logEntry)
-
-      const securityLogs = JSON.parse(localStorage.getItem('securityLogs') || '[]')
-      securityLogs.push(logEntry)
-
-      if (securityLogs.length > 100) {
-        securityLogs.splice(0, securityLogs.length - 100)
-      }
-
-      localStorage.setItem('securityLogs', JSON.stringify(securityLogs))
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove()
+        }
+      }, 4000)
     },
   },
 
@@ -991,12 +796,6 @@ export default {
       try {
         this.currentUser = JSON.parse(savedUser)
         this.currentPage = 'dashboard'
-
-        // Log login event
-        this.logSecurityEvent('user_session_restored', {
-          userId: this.currentUser.id,
-          userRole: this.currentUser.role,
-        })
       } catch (error) {
         localStorage.removeItem('currentUser')
       }
@@ -1022,14 +821,6 @@ main {
   margin-top: auto;
 }
 
-.rating-stars i {
-  transition: color 0.2s ease;
-}
-
-.rating-stars i:hover {
-  color: #ffc107 !important;
-}
-
 .card {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border: none;
@@ -1043,7 +834,6 @@ main {
   max-width: 300px;
 }
 
-/* Navigation enhancements */
 .nav-link:hover {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
@@ -1054,13 +844,11 @@ main {
   border-radius: 4px;
 }
 
-/* Access denied alert */
 .alert {
   border: none;
   border-radius: 0;
 }
 
-/* Role-specific styling */
 .bg-danger {
   background-color: #dc3545 !important;
 }
@@ -1069,7 +857,6 @@ main {
   background-color: #0d6efd !important;
 }
 
-/* Mobile responsiveness */
 @media (max-width: 991.98px) {
   .navbar-nav {
     padding: 1rem 0;
@@ -1092,50 +879,12 @@ main {
   }
 }
 
-/* Admin-specific styling */
-.admin-badge {
-  background: linear-gradient(45deg, #dc3545, #fd7e14);
-}
-
-/* Enhanced button states */
 .btn:disabled {
   opacity: 0.65;
   cursor: not-allowed;
 }
 
-/* Table hover effects */
 .table-hover tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.05);
-}
-
-/* Mobile notification for success messages */
-:global(.mobile-notification) {
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  left: 20px;
-  z-index: 9999;
-  background: linear-gradient(135deg, #28a745, #20c997);
-  color: white;
-  padding: 1rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-100px);
-  opacity: 0;
-  transition: all 0.3s ease;
-}
-
-:global(.mobile-notification.show) {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-:global(.mobile-notification .close-btn) {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.2rem;
-  float: right;
-  cursor: pointer;
 }
 </style>
