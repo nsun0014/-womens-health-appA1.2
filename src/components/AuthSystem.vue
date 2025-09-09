@@ -1,5 +1,4 @@
 <template>
-  <!-- Welcome Banner -->
   <div class="bg-primary text-white py-3 mb-4">
     <div class="container text-center">
       <h3><i class="fas fa-user-shield me-2"></i>Welcome to WomenCare</h3>
@@ -8,7 +7,6 @@
   </div>
 
   <div class="container mt-4">
-    <!-- Security Info Alert -->
     <div class="alert alert-info mb-4">
       <div class="d-flex align-items-start">
         <i class="fas fa-shield-alt me-3 mt-1"></i>
@@ -22,7 +20,6 @@
       </div>
     </div>
 
-    <!-- Login/Register Toggle -->
     <div class="row justify-content-center">
       <div class="col-md-6 col-lg-4">
         <div class="card">
@@ -49,16 +46,14 @@
             </ul>
           </div>
           <div class="card-body">
-            <!-- Login Form -->
             <div v-if="activeTab === 'login'">
               <h4 class="text-center mb-4">
                 <i class="fas fa-lock me-2 text-primary"></i>Secure Login
               </h4>
 
-              <!-- Rate limiting warning -->
-              <div v-if="loginAttempts >= 3" class="alert alert-warning mb-3">
+              <div v-if="rateLimitWarning" class="alert alert-warning mb-3">
                 <i class="fas fa-exclamation-triangle me-2"></i>
-                Multiple failed attempts detected. Please wait before trying again.
+                {{ rateLimitMessage }}
               </div>
 
               <form @submit.prevent="login" novalidate>
@@ -75,8 +70,9 @@
                       v-model="loginForm.email"
                       @blur="validateLoginField('email')"
                       @input="clearLoginError('email')"
-                      :disabled="loginAttempts >= 5"
+                      :disabled="rateLimitWarning"
                       autocomplete="email"
+                      maxlength="254"
                       required
                     />
                   </div>
@@ -98,14 +94,16 @@
                       v-model="loginForm.password"
                       @blur="validateLoginField('password')"
                       @input="clearLoginError('password')"
-                      :disabled="loginAttempts >= 5"
+                      :disabled="rateLimitWarning"
                       autocomplete="current-password"
+                      maxlength="128"
                       required
                     />
                     <button
                       type="button"
                       class="btn btn-outline-secondary"
                       @click="showLoginPassword = !showLoginPassword"
+                      :disabled="rateLimitWarning"
                     >
                       <i :class="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
                     </button>
@@ -115,7 +113,6 @@
                   </div>
                 </div>
 
-                <!-- Remember Me -->
                 <div class="mb-3 form-check">
                   <input
                     class="form-check-input"
@@ -129,30 +126,20 @@
                 <button
                   type="submit"
                   class="btn btn-primary w-100"
-                  :disabled="loginLoading || loginAttempts >= 5 || !isLoginFormValid"
+                  :disabled="loginLoading || rateLimitWarning || !isLoginFormValid"
                 >
                   <span v-if="loginLoading" class="spinner-border spinner-border-sm me-2"></span>
                   <i v-else class="fas fa-sign-in-alt me-2"></i>
                   {{ loginLoading ? 'Signing In...' : 'Login' }}
                 </button>
-
-                <!-- Rate limiting countdown -->
-                <div v-if="rateLimitCountdown > 0" class="text-center mt-2">
-                  <small class="text-warning">
-                    <i class="fas fa-clock me-1"></i>
-                    Please wait {{ rateLimitCountdown }} seconds before trying again
-                  </small>
-                </div>
               </form>
             </div>
 
-            <!-- Register Form -->
             <div v-else>
               <h4 class="text-center mb-4">
                 <i class="fas fa-user-plus me-2 text-success"></i>Create Account
               </h4>
 
-              <!-- Password Strength Indicator -->
               <div v-if="registerForm.password" class="mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                   <small class="text-muted">Password Strength:</small>
@@ -206,6 +193,7 @@
                       @blur="validateRegisterField('email')"
                       @input="clearRegisterError('email')"
                       autocomplete="email"
+                      maxlength="254"
                       required
                     />
                   </div>
@@ -228,6 +216,7 @@
                       @blur="validateRegisterField('password')"
                       @input="onPasswordInput"
                       autocomplete="new-password"
+                      maxlength="128"
                       required
                     />
                     <button
@@ -261,6 +250,7 @@
                       @blur="validateRegisterField('confirmPassword')"
                       @input="clearRegisterError('confirmPassword')"
                       autocomplete="new-password"
+                      maxlength="128"
                       required
                     />
                     <button
@@ -298,7 +288,6 @@
                   </div>
                 </div>
 
-                <!-- Terms and Conditions -->
                 <div class="mb-3 form-check">
                   <input
                     class="form-check-input"
@@ -329,7 +318,6 @@
           </div>
         </div>
 
-        <!-- Demo Accounts Info -->
         <div class="card mt-3">
           <div class="card-body">
             <h6 class="card-title">
@@ -350,14 +338,13 @@
           </div>
         </div>
 
-        <!-- Security Features Info -->
         <div class="card mt-3">
           <div class="card-body">
             <h6 class="card-title">
               <i class="fas fa-shield-alt me-2 text-success"></i>Security Features
             </h6>
             <ul class="list-unstyled mb-0 small">
-              <li><i class="fas fa-check text-success me-2"></i>Advanced XSS Protection</li>
+              <li><i class="fas fa-check text-success me-2"></i>XSS Protection</li>
               <li>
                 <i class="fas fa-check text-success me-2"></i>Rate limiting for failed attempts
               </li>
@@ -365,7 +352,7 @@
               <li>
                 <i class="fas fa-check text-success me-2"></i>Input sanitization and validation
               </li>
-              <li><i class="fas fa-check text-success me-2"></i>Secure session management</li>
+              <li><i class="fas fa-check text-success me-2"></i>Security event logging</li>
             </ul>
           </div>
         </div>
@@ -376,10 +363,17 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import {
+  sanitizeInput,
+  validateEmail,
+  validatePassword,
+  validateName,
+  checkRateLimit,
+  logSecurityEvent,
+} from '../utils/security.js'
 
 const emit = defineEmits(['login-success'])
 
-// UI State
 const activeTab = ref('login')
 const loginLoading = ref(false)
 const registerLoading = ref(false)
@@ -389,13 +383,9 @@ const showConfirmPassword = ref(false)
 const formSubmitted = ref(false)
 const acceptTerms = ref(false)
 const rememberMe = ref(false)
+const rateLimitWarning = ref(false)
+const rateLimitMessage = ref('')
 
-// Security State
-const loginAttempts = ref(0)
-const rateLimitCountdown = ref(0)
-const rateLimitInterval = ref(null)
-
-// Login form
 const loginForm = ref({
   email: '',
   password: '',
@@ -406,7 +396,6 @@ const loginErrors = ref({
   password: '',
 })
 
-// Register form
 const registerForm = ref({
   name: '',
   email: '',
@@ -423,7 +412,6 @@ const registerErrors = ref({
   role: '',
 })
 
-// Demo users for authentication
 const demoUsers = [
   {
     id: 1,
@@ -441,39 +429,6 @@ const demoUsers = [
   },
 ]
 
-// Enhanced XSS Protection function
-const sanitizeInput = (input) => {
-  if (!input || typeof input !== 'string') return ''
-
-  return (
-    input
-      // Remove script tags and dangerous content
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/javascript:/gi, '')
-      .replace(/vbscript:/gi, '')
-      .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
-      .replace(/<iframe[^>]*>/gi, '')
-      .replace(/<object[^>]*>/gi, '')
-      .replace(/<embed[^>]*>/gi, '')
-      .replace(/<form[^>]*>/gi, '')
-      .replace(/document\.cookie/gi, '')
-      .replace(/document\.write/gi, '')
-      .replace(/eval\s*\(/gi, '')
-      .replace(/window\.location/gi, '')
-      // Encode HTML entities
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#x27;')
-      .replace(/\//g, '&#x2F;')
-      // Remove null bytes and control characters
-      .replace(/[\x00-\x1f\x7f-\x9f]/g, '')
-      .trim()
-  )
-}
-
-// Enhanced Validation Rules
 const validationRules = {
   name: {
     required: true,
@@ -490,7 +445,6 @@ const validationRules = {
     required: true,
     minLength: 8,
     maxLength: 128,
-    // Must contain: uppercase, lowercase, number, and special char
     pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
   },
   role: {
@@ -499,27 +453,25 @@ const validationRules = {
   },
 }
 
-// Password Strength Calculation
 const passwordStrength = computed(() => {
   const password = registerForm.value.password
   if (!password) return { score: 0 }
 
   let score = 0
-
-  // Length check
   if (password.length >= 8) score += 25
   if (password.length >= 12) score += 10
-
-  // Character type checks
   if (/[a-z]/.test(password)) score += 20
   if (/[A-Z]/.test(password)) score += 20
   if (/\d/.test(password)) score += 20
   if (/[@$!%*?&]/.test(password)) score += 15
 
-  // Avoid common passwords
   const commonPasswords = ['password', '123456', 'password123', 'admin', 'qwerty']
   if (commonPasswords.some((common) => password.toLowerCase().includes(common))) {
     score -= 30
+  }
+
+  if (/(.)\1{2,}/.test(password)) {
+    score -= 10
   }
 
   return { score: Math.max(0, Math.min(100, score)) }
@@ -542,7 +494,6 @@ const passwordStrengthText = computed(() => {
   return 'Strong'
 })
 
-// Form Validation
 const isLoginFormValid = computed(() => {
   return (
     loginForm.value.email &&
@@ -564,59 +515,35 @@ const isRegisterFormValid = computed(() => {
   )
 })
 
-// Comprehensive Field Validation
 const validateField = (formType, fieldName, value) => {
-  const rules = validationRules[fieldName]
-  if (!rules) return ''
+  let validationResult
 
-  const sanitizedValue = sanitizeInput(value)
+  switch (fieldName) {
+    case 'email':
+      validationResult = validateEmail(value)
+      return validationResult.isValid ? '' : validationResult.error
 
-  if (rules.required && !sanitizedValue) {
-    return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`
+    case 'password':
+      validationResult = validatePassword(value)
+      return validationResult.isValid ? '' : validationResult.error
+
+    case 'name':
+      validationResult = validateName(value)
+      return validationResult.isValid ? '' : validationResult.error
+
+    case 'role':
+      if (!value) return 'Please select a role'
+      if (!['user', 'admin'].includes(value)) return 'Invalid role selected'
+      return ''
+
+    default:
+      if (validationRules[fieldName]?.required && !sanitizeInput(value)) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`
+      }
+      return ''
   }
-
-  if (!rules.required && !sanitizedValue) return ''
-
-  if (rules.minLength && sanitizedValue.length < rules.minLength) {
-    return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${rules.minLength} characters`
-  }
-
-  if (rules.maxLength && sanitizedValue.length > rules.maxLength) {
-    return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} cannot exceed ${rules.maxLength} characters`
-  }
-
-  if (rules.pattern && !rules.pattern.test(sanitizedValue)) {
-    switch (fieldName) {
-      case 'name':
-        return 'Name can only contain letters, spaces, hyphens, and apostrophes'
-      case 'email':
-        return 'Please enter a valid email address'
-      case 'password':
-        return 'Password must contain uppercase, lowercase, number, and special character'
-      default:
-        return `Invalid ${fieldName} format`
-    }
-  }
-
-  if (rules.allowedValues && !rules.allowedValues.includes(sanitizedValue)) {
-    return `Please select a valid ${fieldName}`
-  }
-
-  // Check for email uniqueness during registration
-  if (formType === 'register' && fieldName === 'email') {
-    const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
-    const emailExists = [...demoUsers, ...existingUsers].some(
-      (user) => user.email === sanitizedValue,
-    )
-    if (emailExists) {
-      return 'An account with this email already exists'
-    }
-  }
-
-  return ''
 }
 
-// Enhanced Validation functions
 const validateRegisterField = (fieldName) => {
   if (fieldName === 'confirmPassword') {
     if (registerForm.value.password !== registerForm.value.confirmPassword) {
@@ -654,7 +581,6 @@ const getValidationClass = (formType, fieldName) => {
   return ''
 }
 
-// Event Handlers
 const onPasswordInput = () => {
   clearRegisterError('password')
   if (registerForm.value.confirmPassword) {
@@ -667,47 +593,56 @@ const switchTab = (tab) => {
   loginErrors.value = { email: '', password: '' }
   registerErrors.value = { name: '', email: '', password: '', confirmPassword: '', role: '' }
   formSubmitted.value = false
+  rateLimitWarning.value = false
 }
 
-// Rate Limiting
-const startRateLimit = () => {
-  rateLimitCountdown.value = 30
-  rateLimitInterval.value = setInterval(() => {
-    rateLimitCountdown.value--
-    if (rateLimitCountdown.value <= 0) {
-      clearInterval(rateLimitInterval.value)
-      loginAttempts.value = 0
-    }
-  }, 1000)
-}
-
-// Enhanced Login function
 const login = async () => {
+  const rateCheck = checkRateLimit('login', 5, 5)
+  if (!rateCheck.allowed) {
+    rateLimitWarning.value = true
+    rateLimitMessage.value = rateCheck.message
+    logSecurityEvent('LOGIN_RATE_LIMIT_EXCEEDED', {
+      ip: 'client',
+      userAgent: navigator.userAgent.substring(0, 100),
+    })
+    return
+  }
+
   validateLoginField('email')
   validateLoginField('password')
 
-  if (!isLoginFormValid.value || loginAttempts.value >= 5) return
+  if (!isLoginFormValid.value) return
 
   loginLoading.value = true
   loginErrors.value = { email: '', password: '' }
 
-  // Sanitize inputs for XSS protection
-  const sanitizedEmail = sanitizeInput(loginForm.value.email)
+  const emailValidation = validateEmail(loginForm.value.email)
+  const passwordValidation = validatePassword(loginForm.value.password)
+
+  if (!emailValidation.isValid || !passwordValidation.isValid) {
+    loginErrors.value.email = emailValidation.error || ''
+    loginErrors.value.password = passwordValidation.error || ''
+    loginLoading.value = false
+    return
+  }
+
+  const sanitizedEmail = emailValidation.sanitized
   const sanitizedPassword = sanitizeInput(loginForm.value.password)
 
-  // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  // Check against demo users and localStorage users
   const savedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
   const allUsers = [...demoUsers, ...savedUsers]
 
   const user = allUsers.find((u) => u.email === sanitizedEmail && u.password === sanitizedPassword)
 
   if (user) {
-    loginAttempts.value = 0
+    logSecurityEvent('LOGIN_SUCCESS', {
+      userId: user.id,
+      userRole: user.role,
+      email: sanitizedEmail,
+    })
 
-    // Store current user
     const userData = {
       id: user.id,
       name: sanitizeInput(user.name),
@@ -723,58 +658,69 @@ const login = async () => {
         'rememberUser',
         JSON.stringify({
           email: sanitizedEmail,
-          expires: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days
+          expires: Date.now() + 30 * 24 * 60 * 60 * 1000,
         }),
       )
     }
 
     emit('login-success', userData)
-    showNotification(`Welcome ${user.name}! You are logged in as ${user.role}.`, 'success')
+    showNotification(`Welcome ${sanitizeInput(user.name)}!`, 'success')
   } else {
-    loginAttempts.value++
+    logSecurityEvent('LOGIN_FAILED', {
+      email: sanitizedEmail,
+      timestamp: new Date().toISOString(),
+    })
+
     loginErrors.value.email = 'Invalid email or password'
     loginErrors.value.password = 'Invalid email or password'
-
-    if (loginAttempts.value >= 3) {
-      startRateLimit()
-      showNotification(
-        'Multiple failed login attempts. Please wait before trying again.',
-        'warning',
-      )
-    }
+    showNotification('Invalid credentials', 'error')
   }
 
   loginLoading.value = false
 }
 
-// Enhanced Register function
 const register = async () => {
   formSubmitted.value = true
 
-  // Validate all fields
   Object.keys(registerErrors.value).forEach((field) => {
     validateRegisterField(field)
   })
 
-  // Check if any errors exist
   if (!isRegisterFormValid.value) return
 
   registerLoading.value = true
 
-  // Sanitize inputs for XSS protection
+  const nameValidation = validateName(registerForm.value.name)
+  const emailValidation = validateEmail(registerForm.value.email)
+  const passwordValidation = validatePassword(registerForm.value.password)
+
+  if (!nameValidation.isValid || !emailValidation.isValid || !passwordValidation.isValid) {
+    registerErrors.value.name = nameValidation.error || ''
+    registerErrors.value.email = emailValidation.error || ''
+    registerErrors.value.password = passwordValidation.error || ''
+    registerLoading.value = false
+    return
+  }
+
   const sanitizedData = {
-    name: sanitizeInput(registerForm.value.name),
-    email: sanitizeInput(registerForm.value.email),
+    name: nameValidation.sanitized,
+    email: emailValidation.sanitized,
     password: sanitizeInput(registerForm.value.password),
     role: registerForm.value.role,
   }
 
-  // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 1500))
 
   try {
-    // Save to localStorage
     const savedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+    const allUsers = [...demoUsers, ...savedUsers]
+
+    if (allUsers.some((user) => user.email === sanitizedData.email)) {
+      registerErrors.value.email = 'An account with this email already exists'
+      registerLoading.value = false
+      return
+    }
+
     const newUser = {
       id: Date.now(),
       ...sanitizedData,
@@ -784,12 +730,14 @@ const register = async () => {
     savedUsers.push(newUser)
     localStorage.setItem('registeredUsers', JSON.stringify(savedUsers))
 
-    showNotification(
-      `Account created successfully! You can now login with ${newUser.email}`,
-      'success',
-    )
+    logSecurityEvent('USER_REGISTRATION', {
+      userId: newUser.id,
+      email: sanitizedData.email,
+      role: sanitizedData.role,
+    })
 
-    // Switch to login tab and clear form
+    showNotification(`Account created successfully!`, 'success')
+
     activeTab.value = 'login'
     registerForm.value = {
       name: '',
@@ -808,13 +756,16 @@ const register = async () => {
     formSubmitted.value = false
     acceptTerms.value = false
   } catch (error) {
+    logSecurityEvent('REGISTRATION_ERROR', {
+      error: error.message,
+      email: sanitizedData.email,
+    })
     showNotification('Registration failed. Please try again.', 'error')
   }
 
   registerLoading.value = false
 }
 
-// Notification System
 const showNotification = (message, type = 'info') => {
   const notification = document.createElement('div')
   notification.className = `alert alert-${type === 'error' ? 'danger' : type} position-fixed`
@@ -832,7 +783,6 @@ const showNotification = (message, type = 'info') => {
   }, 5000)
 }
 
-// Load remembered user on component mount
 onMounted(() => {
   const rememberedUser = localStorage.getItem('rememberUser')
   if (rememberedUser) {
@@ -846,13 +796,6 @@ onMounted(() => {
     } catch (error) {
       localStorage.removeItem('rememberUser')
     }
-  }
-})
-
-// Cleanup on component unmount
-onUnmounted(() => {
-  if (rateLimitInterval.value) {
-    clearInterval(rateLimitInterval.value)
   }
 })
 </script>
@@ -910,7 +853,6 @@ onUnmounted(() => {
   border-color: #6c757d;
 }
 
-/* Animation for form transitions */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s;
@@ -921,7 +863,6 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-/* Loading spinner animation */
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -935,7 +876,6 @@ onUnmounted(() => {
   animation: spin 0.75s linear infinite;
 }
 
-/* Responsive improvements */
 @media (max-width: 768px) {
   .container {
     padding: 0 15px;
@@ -950,12 +890,10 @@ onUnmounted(() => {
   }
 }
 
-/* Security badge styling */
 .badge {
   font-size: 0.75em;
 }
 
-/* Form validation feedback */
 .invalid-feedback {
   font-size: 0.875em;
 }
@@ -965,13 +903,11 @@ onUnmounted(() => {
   color: #6c757d;
 }
 
-/* Enhanced button states */
 .btn:disabled {
   opacity: 0.65;
   cursor: not-allowed;
 }
 
-/* Alert positioning for notifications */
 .alert.position-fixed {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);

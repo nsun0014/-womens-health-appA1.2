@@ -14,7 +14,6 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
-            <!-- Dashboard - Available to all authenticated users -->
             <li class="nav-item" v-if="currentUser">
               <a
                 class="nav-link"
@@ -26,7 +25,6 @@
               </a>
             </li>
 
-            <!-- Health Profile - Available to all authenticated users -->
             <li class="nav-item" v-if="currentUser">
               <a
                 class="nav-link"
@@ -38,7 +36,6 @@
               </a>
             </li>
 
-            <!-- Rating - Available to all authenticated users -->
             <li class="nav-item" v-if="currentUser">
               <a
                 class="nav-link"
@@ -50,7 +47,6 @@
               </a>
             </li>
 
-            <!-- Reports - Available to all authenticated users -->
             <li class="nav-item" v-if="currentUser">
               <a
                 class="nav-link"
@@ -62,7 +58,6 @@
               </a>
             </li>
 
-            <!-- Admin Panel - Only for admin users -->
             <li class="nav-item" v-if="isAdmin">
               <a
                 class="nav-link"
@@ -74,7 +69,6 @@
               </a>
             </li>
 
-            <!-- User Management - Only for admin users -->
             <li class="nav-item" v-if="isAdmin">
               <a
                 class="nav-link"
@@ -88,14 +82,12 @@
           </ul>
 
           <ul class="navbar-nav">
-            <!-- Login/Register link for unauthenticated users -->
             <li class="nav-item" v-if="!currentUser">
               <a class="nav-link" href="#" @click="navigateTo('auth')">
                 <i class="fas fa-sign-in-alt me-1"></i>Login / Register
               </a>
             </li>
 
-            <!-- User info and logout for authenticated users -->
             <li class="nav-item" v-if="currentUser">
               <span class="nav-link">
                 <i class="fas fa-user-circle me-1"></i>
@@ -115,7 +107,6 @@
       </div>
     </nav>
 
-    <!-- Role-based Access Control Alert -->
     <div v-if="accessDenied" class="alert alert-warning alert-dismissible fade show" role="alert">
       <div class="container">
         <i class="fas fa-exclamation-triangle me-2"></i>
@@ -124,15 +115,12 @@
       </div>
     </div>
 
-    <!-- Main Content -->
     <main>
-      <!-- Authentication Page -->
       <AuthSystem
         v-if="currentPage === 'auth' && !currentUser"
         @login-success="handleLoginSuccess"
       />
 
-      <!-- Dashboard - All authenticated users -->
       <div v-if="currentPage === 'dashboard' && currentUser" class="container mt-4">
         <div class="row">
           <div class="col-12">
@@ -167,9 +155,7 @@
           </div>
         </div>
 
-        <!-- Role-specific Dashboard Content -->
         <div class="row">
-          <!-- User Dashboard -->
           <div v-if="currentUser.role === 'user'" class="col-12">
             <div class="row">
               <div class="col-md-4 mb-3">
@@ -201,7 +187,6 @@
               </div>
             </div>
 
-            <!-- User Quick Actions -->
             <div class="card">
               <div class="card-header">
                 <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
@@ -229,7 +214,6 @@
             </div>
           </div>
 
-          <!-- Admin Dashboard -->
           <div v-if="currentUser.role === 'admin'" class="col-12">
             <div class="row">
               <div class="col-md-3 mb-3">
@@ -270,7 +254,6 @@
               </div>
             </div>
 
-            <!-- Admin Quick Actions -->
             <div class="card">
               <div class="card-header">
                 <h5><i class="fas fa-tools me-2"></i>Admin Quick Actions</h5>
@@ -308,20 +291,16 @@
         </div>
       </div>
 
-      <!-- Health Profile Form - All authenticated users -->
       <Form v-if="currentPage === 'profile' && currentUser" />
 
-      <!-- Rating System - All authenticated users -->
       <RatingSystem
         v-if="currentPage === 'rating' && currentUser"
         @rating-updated="handleRatingUpdate"
       />
 
-      <!-- Reports Page - All authenticated users with role-specific content -->
       <div v-if="currentPage === 'reports' && currentUser" class="container mt-4">
         <h2><i class="fas fa-chart-line me-2"></i>Reports Dashboard</h2>
 
-        <!-- User Reports -->
         <div v-if="currentUser.role === 'user'" class="row">
           <div class="col-12">
             <div class="card">
@@ -342,7 +321,6 @@
           </div>
         </div>
 
-        <!-- Admin Reports -->
         <div v-if="currentUser.role === 'admin'" class="row">
           <div class="col-12">
             <div class="card mb-4">
@@ -401,7 +379,6 @@
         </div>
       </div>
 
-      <!-- Admin Panel - Only admin users -->
       <div v-if="currentPage === 'admin' && isAdmin" class="container mt-4">
         <h2><i class="fas fa-cog me-2"></i>Admin Panel</h2>
 
@@ -467,7 +444,6 @@
         </div>
       </div>
 
-      <!-- User Management - Only admin users -->
       <div v-if="currentPage === 'userManagement' && isAdmin" class="container mt-4">
         <h2><i class="fas fa-users-cog me-2"></i>User Management</h2>
 
@@ -524,7 +500,6 @@
         </div>
       </div>
 
-      <!-- Access Denied Message -->
       <div v-if="currentPage !== 'auth' && !currentUser" class="container mt-5">
         <div class="row justify-content-center">
           <div class="col-md-6 text-center">
@@ -539,7 +514,6 @@
       </div>
     </main>
 
-    <!-- Footer -->
     <footer class="footer bg-dark text-white mt-auto">
       <div class="container py-4">
         <div class="row">
@@ -561,6 +535,7 @@
 import Form from './components/Form.vue'
 import AuthSystem from './components/AuthSystem.vue'
 import RatingSystem from './components/RatingSystem.vue'
+import { sanitizeInput, logSecurityEvent } from './utils/security.js'
 
 export default {
   name: 'App',
@@ -600,12 +575,7 @@ export default {
   },
   methods: {
     sanitizeInput(input) {
-      if (!input) return ''
-      return input
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-        .replace(/javascript:/gi, '')
-        .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
-        .replace(/[<>]/g, '')
+      return sanitizeInput(input)
     },
 
     navigateTo(page) {
@@ -700,19 +670,47 @@ export default {
     },
 
     handleLoginSuccess(user) {
-      this.currentUser = user
+      this.currentUser = {
+        ...user,
+        name: this.sanitizeInput(user.name),
+        email: this.sanitizeInput(user.email),
+      }
       this.currentPage = 'dashboard'
       this.loadPlatformData()
       this.loadUserStats()
+
+      logSecurityEvent('USER_SESSION_START', {
+        userId: user.id,
+        userRole: user.role,
+      })
     },
 
     handleRatingUpdate(newRating) {
+      const sanitizedRating = {
+        ...newRating,
+        userName: this.sanitizeInput(newRating.userName),
+        comment: this.sanitizeInput(newRating.comment),
+      }
+
       this.loadPlatformData()
       this.loadUserStats()
       this.showMobileNotification('Rating submitted successfully!')
+
+      logSecurityEvent('RATING_SUBMITTED', {
+        userId: this.currentUser?.id,
+        ratingScore: sanitizedRating.score,
+      })
     },
 
     logout() {
+      logSecurityEvent('USER_LOGOUT', {
+        userId: this.currentUser?.id,
+        userRole: this.currentUser?.role,
+        sessionDuration: this.currentUser?.loginTime
+          ? Date.now() - new Date(this.currentUser.loginTime).getTime()
+          : 0,
+      })
+
       localStorage.removeItem('currentUser')
       this.currentUser = null
       this.currentPage = 'auth'
@@ -788,16 +786,39 @@ export default {
         }
       }, 4000)
     },
+
+    performSecurityChecks() {
+      if (window.top !== window.self) {
+        logSecurityEvent('CLICKJACKING_ATTEMPT', {
+          topOrigin: window.top.location.origin,
+          selfOrigin: window.self.location.origin,
+        })
+        console.warn('Application loaded in iframe - potential clickjacking attempt')
+      }
+
+      logSecurityEvent('APP_LOADED', {
+        userAgent: navigator.userAgent.substring(0, 100),
+        timestamp: new Date().toISOString(),
+      })
+    },
   },
 
   mounted() {
+    this.performSecurityChecks()
+
     const savedUser = localStorage.getItem('currentUser')
     if (savedUser) {
       try {
         this.currentUser = JSON.parse(savedUser)
         this.currentPage = 'dashboard'
+
+        logSecurityEvent('USER_SESSION_RESTORED', {
+          userId: this.currentUser.id,
+          userRole: this.currentUser.role,
+        })
       } catch (error) {
         localStorage.removeItem('currentUser')
+        logSecurityEvent('SESSION_RESTORE_ERROR', { error: error.message })
       }
     }
     this.loadPlatformData()
