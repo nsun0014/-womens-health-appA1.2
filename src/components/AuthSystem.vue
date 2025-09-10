@@ -327,12 +327,12 @@
               <div class="col-sm-6">
                 <strong>User:</strong><br />
                 <code>user@demo.com</code><br />
-                <code>password123</code>
+                <code>Password123!</code>
               </div>
               <div class="col-sm-6">
                 <strong>Admin:</strong><br />
                 <code>admin@demo.com</code><br />
-                <code>admin123</code>
+                <code>Admin123!</code>
               </div>
             </div>
           </div>
@@ -417,14 +417,14 @@ const demoUsers = [
     id: 1,
     name: 'Demo User',
     email: 'user@demo.com',
-    password: 'password123',
+    password: 'Password123!',
     role: 'user',
   },
   {
     id: 2,
     name: 'Admin User',
     email: 'admin@demo.com',
-    password: 'admin123',
+    password: 'Admin123!',
     role: 'admin',
   },
 ]
