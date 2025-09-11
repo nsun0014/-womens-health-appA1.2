@@ -1,7 +1,5 @@
-<!-- Enhanced Women's Health Profile Form with improved UX -->
 <template>
   <div class="container mt-4">
-    <!-- Progress indicator showing form completion -->
     <div class="card mb-3">
       <div class="card-body">
         <h6>Form Completion Progress</h6>
@@ -17,7 +15,6 @@
       </div>
     </div>
 
-    <!-- Health Tips Section -->
     <div class="alert alert-info mb-4">
       <div class="d-flex align-items-center">
         <i class="fas fa-lightbulb me-3" style="font-size: 1.5rem"></i>
@@ -36,7 +33,6 @@
       </div>
       <div class="card-body">
         <form @submit.prevent="submitForm" ref="healthForm">
-          <!-- Name field with advanced validation -->
           <div class="mb-3">
             <label class="form-label">Full Name *</label>
             <input
@@ -57,7 +53,6 @@
             </div>
           </div>
 
-          <!-- Email field with enhanced validation -->
           <div class="mb-3">
             <label class="form-label">Email Address *</label>
             <div class="input-group">
@@ -85,7 +80,6 @@
             </div>
           </div>
 
-          <!-- Age field with range validation -->
           <div class="mb-3">
             <label class="form-label">Age *</label>
             <input
@@ -107,7 +101,6 @@
             </div>
           </div>
 
-          <!-- Phone validation (additional validation type) -->
           <div class="mb-3">
             <label class="form-label">Phone Number</label>
             <input
@@ -124,7 +117,6 @@
             </div>
           </div>
 
-          <!-- Health Goal with conditional fields -->
           <div class="mb-3">
             <label class="form-label">Primary Health Goal</label>
             <select class="form-select" v-model="formData.healthGoal" @change="onHealthGoalChange">
@@ -135,7 +127,6 @@
             </select>
           </div>
 
-          <!-- Conditional field based on health goal -->
           <div v-if="formData.healthGoal === 'fitness'" class="mb-3">
             <label class="form-label">Current Activity Level</label>
             <select class="form-select" v-model="formData.activityLevel">
@@ -147,7 +138,6 @@
             </select>
           </div>
 
-          <!-- Health notes with character count -->
           <div class="mb-3">
             <label class="form-label">Health Notes (Optional)</label>
             <textarea
@@ -161,7 +151,6 @@
             <div class="form-text">{{ formData.notes.length }}/500 characters</div>
           </div>
 
-          <!-- Enhanced submit button -->
           <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary" :disabled="!isFormValid || isSubmitting">
               <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
@@ -174,7 +163,6 @@
             </button>
           </div>
 
-          <!-- Success Animation -->
           <div v-if="showSuccessAnimation" class="alert alert-success mt-3 fade-in">
             <div class="d-flex align-items-center">
               <div class="success-icon me-3">
@@ -191,7 +179,6 @@
       </div>
     </div>
 
-    <!-- Enhanced saved profiles display -->
     <div v-if="savedProfiles.length > 0" class="card mt-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h4>Saved Profiles ({{ savedProfiles.length }})</h4>
@@ -215,7 +202,6 @@
         </div>
       </div>
       <div class="card-body">
-        <!-- Grid view -->
         <div v-if="profileViewMode === 'grid'" class="row">
           <div
             class="col-md-6 mb-3"
@@ -250,7 +236,6 @@
           </div>
         </div>
 
-        <!-- List view -->
         <div v-else class="table-responsive">
           <table class="table table-hover">
             <thead>
@@ -280,7 +265,6 @@
           </table>
         </div>
 
-        <!-- Pagination -->
         <nav v-if="savedProfiles.length > profilesPerPage">
           <ul class="pagination justify-content-center">
             <li class="page-item" :class="{ disabled: currentPage === 1 }">
@@ -302,7 +286,6 @@
       </div>
     </div>
 
-    <!-- Statistics dashboard -->
     <div class="card mt-4">
       <div class="card-header">
         <h5><i class="fas fa-chart-bar me-2"></i>Profile Statistics</h5>
@@ -350,7 +333,6 @@
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 
-// Health tips array
 const healthTips = ref([
   'Stay hydrated by drinking at least 8 glasses of water daily.',
   'Take a 10-minute walk after meals to aid digestion.',
@@ -363,7 +345,6 @@ const healthTips = ref([
 const currentHealthTip = ref(healthTips.value[0])
 const showSuccessAnimation = ref(false)
 
-// Reactive data
 const formData = ref({
   name: '',
   email: '',
@@ -389,7 +370,6 @@ const profilesPerPage = 4
 const emailSuggestion = ref('')
 const healthForm = ref(null)
 
-// Health goal options
 const healthGoalOptions = ref([
   { value: 'reproductive', label: 'Reproductive Health' },
   { value: 'mental', label: 'Mental Health & Wellness' },
@@ -399,7 +379,6 @@ const healthGoalOptions = ref([
   { value: 'preventive', label: 'Preventive Care' },
 ])
 
-// Advanced computed properties
 const formProgress = computed(() => {
   const fields = ['name', 'email', 'age']
   const optionalFields = ['phone', 'healthGoal', 'notes']
@@ -407,14 +386,12 @@ const formProgress = computed(() => {
   let completed = 0
   let total = fields.length + optionalFields.length
 
-  // Required fields (higher weight)
   fields.forEach((field) => {
     if (formData.value[field] && !errors.value[field]) {
       completed += 2
     }
   })
 
-  // Optional fields
   optionalFields.forEach((field) => {
     if (formData.value[field]) {
       completed += 1
@@ -466,7 +443,6 @@ const profileStatistics = computed(() => {
   const ages = savedProfiles.value.map((p) => p.age).filter((age) => age)
   const averageAge = ages.length ? Math.round(ages.reduce((a, b) => a + b) / ages.length) : 0
 
-  // Find most common goal
   const goalCounts = {}
   savedProfiles.value.forEach((profile) => {
     if (profile.healthGoal) {
@@ -478,7 +454,6 @@ const profileStatistics = computed(() => {
     ? Object.keys(goalCounts).reduce((a, b) => (goalCounts[a] > goalCounts[b] ? a : b))
     : 'N/A'
 
-  // Calculate completion rate (profiles with all optional fields filled)
   const completeProfiles = savedProfiles.value.filter(
     (p) => p.name && p.email && p.age && p.phone && p.healthGoal && p.notes,
   ).length
@@ -492,7 +467,6 @@ const profileStatistics = computed(() => {
   }
 })
 
-// Enhanced validation methods
 const validationRules = {
   name: {
     required: true,
@@ -543,22 +517,18 @@ const validateField = (fieldName) => {
 
   errors.value[fieldName] = ''
 
-  // Required validation
   if (rules.required && (!value || (typeof value === 'string' && !value.trim()))) {
     errors.value[fieldName] = rules.message.required
     return
   }
 
-  // Skip other validations if field is empty and not required
   if (!rules.required && !value) return
 
-  // Pattern validation
   if (rules.pattern && !rules.pattern.test(value)) {
     errors.value[fieldName] = rules.message.pattern
     return
   }
 
-  // Length validations
   if (rules.minLength && value.length < rules.minLength) {
     errors.value[fieldName] = rules.message.minLength
     return
@@ -569,7 +539,6 @@ const validateField = (fieldName) => {
     return
   }
 
-  // Numeric validations
   if (rules.min && value < rules.min) {
     errors.value[fieldName] = rules.message.min
     return
@@ -581,7 +550,6 @@ const validateField = (fieldName) => {
   }
 }
 
-// Helper methods
 const getFieldClass = (fieldName) => {
   if (errors.value[fieldName]) return 'is-invalid'
   if (formData.value[fieldName] && !errors.value[fieldName]) return 'is-valid'
@@ -601,16 +569,13 @@ const getHealthGoalLabel = (value) => {
   return option ? option.label : value
 }
 
-// Input event handlers
 const onNameInput = () => {
-  // Real-time validation
   if (formData.value.name.length >= 2) {
     validateField('name')
   }
 }
 
 const onEmailInput = () => {
-  // Email suggestion logic
   const email = formData.value.email.toLowerCase()
   const commonDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com']
 
@@ -640,12 +605,9 @@ const onAgeInput = () => {
   }
 }
 
-const onNotesInput = () => {
-  // Auto-resize textarea would go here if needed
-}
+const onNotesInput = () => {}
 
 const formatPhone = () => {
-  // Basic phone formatting
   let phone = formData.value.phone.replace(/\D/g, '')
   if (phone.length >= 10) {
     validateField('phone')
@@ -659,15 +621,12 @@ const acceptEmailSuggestion = () => {
 }
 
 const onHealthGoalChange = () => {
-  // Clear conditional fields when health goal changes
   if (formData.value.healthGoal !== 'fitness') {
     formData.value.activityLevel = ''
   }
 }
 
-// Form actions
 const submitForm = async () => {
-  // Validate all fields
   Object.keys(validationRules).forEach((field) => {
     validateField(field)
   })
@@ -676,7 +635,6 @@ const submitForm = async () => {
 
   isSubmitting.value = true
 
-  // Simulate API call delay
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
   const newProfile = {
@@ -686,20 +644,17 @@ const submitForm = async () => {
     savedTime: new Date().toLocaleTimeString(),
   }
 
-  savedProfiles.value.unshift(newProfile) // Add to beginning
+  savedProfiles.value.unshift(newProfile)
   localStorage.setItem('healthProfiles', JSON.stringify(savedProfiles.value))
 
-  // Reset form
   resetForm()
   isSubmitting.value = false
 
-  // Show success animation
   showSuccessAnimation.value = true
   setTimeout(() => {
     showSuccessAnimation.value = false
   }, 4000)
 
-  // Scroll to saved profiles
   await nextTick()
   if (savedProfiles.value.length === 1) {
     document.querySelector('.card:nth-child(3)').scrollIntoView({ behavior: 'smooth' })
@@ -730,14 +685,12 @@ const deleteProfile = (index) => {
     savedProfiles.value.splice(actualIndex, 1)
     localStorage.setItem('healthProfiles', JSON.stringify(savedProfiles.value))
 
-    // Adjust current page if needed
     if (currentPage.value > totalPages.value && totalPages.value > 0) {
       currentPage.value = totalPages.value
     }
   }
 }
 
-// Watchers
 watch(
   () => formData.value.name,
   (newName) => {
@@ -747,7 +700,6 @@ watch(
   },
 )
 
-// Lifecycle
 onMounted(() => {
   const savedData = localStorage.getItem('healthProfiles')
   if (savedData) {
@@ -759,7 +711,6 @@ onMounted(() => {
     }
   }
 
-  // Set random health tip
   const randomIndex = Math.floor(Math.random() * healthTips.value.length)
   currentHealthTip.value = healthTips.value[randomIndex]
 })

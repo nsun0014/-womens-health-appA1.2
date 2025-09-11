@@ -1,9 +1,3 @@
-// src/utils/security.js
-// Basic security measures for BR (C.4) - Meets Expectations level
-
-/**
- * Basic XSS Protection - sanitize user input
- */
 export function sanitizeInput(input) {
   if (!input || typeof input !== 'string') return ''
 
@@ -19,9 +13,6 @@ export function sanitizeInput(input) {
     .trim()
 }
 
-/**
- * Basic Email Validation
- */
 export function validateEmail(email) {
   if (!email) return { isValid: false, error: 'Email is required' }
 
@@ -39,9 +30,6 @@ export function validateEmail(email) {
   return { isValid: true, sanitized: sanitized }
 }
 
-/**
- * Basic Password Validation
- */
 export function validatePassword(password) {
   if (!password) return { isValid: false, error: 'Password is required' }
 
@@ -68,9 +56,6 @@ export function validatePassword(password) {
   return { isValid: true }
 }
 
-/**
- * Basic Name Validation
- */
 export function validateName(name) {
   if (!name) return { isValid: false, error: 'Name is required' }
 
@@ -95,9 +80,6 @@ export function validateName(name) {
   return { isValid: true, sanitized: sanitized }
 }
 
-/**
- * Simple Rate Limiting
- */
 export function checkRateLimit(action, maxAttempts = 5, windowMinutes = 5) {
   const key = `rateLimit_${action}`
   const now = Date.now()
@@ -105,7 +87,6 @@ export function checkRateLimit(action, maxAttempts = 5, windowMinutes = 5) {
 
   let attempts = JSON.parse(localStorage.getItem(key) || '[]')
 
-  // Remove old attempts
   attempts = attempts.filter((timestamp) => now - timestamp < windowMs)
 
   if (attempts.length >= maxAttempts) {
@@ -123,9 +104,6 @@ export function checkRateLimit(action, maxAttempts = 5, windowMinutes = 5) {
   return { allowed: true, remainingAttempts: maxAttempts - attempts.length }
 }
 
-/**
- * Basic Security Event Logging
- */
 export function logSecurityEvent(eventType, details = {}) {
   const logEntry = {
     timestamp: new Date().toISOString(),
@@ -139,7 +117,6 @@ export function logSecurityEvent(eventType, details = {}) {
     const logs = JSON.parse(localStorage.getItem('securityLogs') || '[]')
     logs.push(logEntry)
 
-    // Keep only recent 50 logs
     if (logs.length > 50) {
       logs.splice(0, logs.length - 50)
     }
