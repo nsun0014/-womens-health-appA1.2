@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <!-- Navigation Bar with Role-based Authentication -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
         <a class="navbar-brand" href="#"> <i class="fas fa-heart me-2"></i>WomenCare </a>
@@ -43,17 +44,6 @@
                 @click="navigateTo('rating')"
               >
                 <i class="fas fa-star me-1"></i>Rate Platform
-              </a>
-            </li>
-
-            <li class="nav-item" v-if="currentUser">
-              <a
-                class="nav-link"
-                :class="{ active: currentPage === 'email' }"
-                href="#"
-                @click="navigateTo('email')"
-              >
-                <i class="fas fa-envelope me-1"></i>Send Email
               </a>
             </li>
 
@@ -130,8 +120,6 @@
         v-if="currentPage === 'auth' && !currentUser"
         @login-success="handleLoginSuccess"
       />
-
-      <EmailForm v-if="currentPage === 'email' && currentUser" />
 
       <div v-if="currentPage === 'dashboard' && currentUser" class="container mt-4">
         <div class="row">
@@ -547,7 +535,6 @@
 import Form from './components/Form.vue'
 import AuthSystem from './components/AuthSystem.vue'
 import RatingSystem from './components/RatingSystem.vue'
-import EmailForm from './components/EmailForm.vue'
 import { sanitizeInput, logSecurityEvent } from './utils/security.js'
 
 export default {
@@ -556,7 +543,6 @@ export default {
     Form,
     AuthSystem,
     RatingSystem,
-    EmailForm,
   },
   data() {
     return {
@@ -609,7 +595,7 @@ export default {
       if (!this.currentUser) {
         return false
       }
-      const userPages = ['dashboard', 'profile', 'rating', 'reports', 'email']
+      const userPages = ['dashboard', 'profile', 'rating', 'reports']
       if (userPages.includes(page)) {
         return true
       }
@@ -654,7 +640,6 @@ export default {
           'Create health profiles',
           'Rate platform',
           'View personal reports',
-          'Send emails',
         ],
         admin: [
           'All user permissions',

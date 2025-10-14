@@ -17,6 +17,7 @@
     "@emailjs/browser": "^4.4.1",
     "@sendgrid/mail": "^8.1.6",
     "bootstrap": "^5.3.8",
+    "dotenv": "^17.2.3",
     "firebase": "^12.4.0",
     "vue": "^3.5.18"
   },
