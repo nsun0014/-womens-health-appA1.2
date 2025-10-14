@@ -89,7 +89,6 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         error: 'Failed to send email',
         details: error.message,
-        code: error.code,
       }),
     }
   }
