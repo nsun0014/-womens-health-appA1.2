@@ -1,8 +1,6 @@
 const sgMail = require('@sendgrid/mail')
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-
-exports.handler = async (event) => {
+exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -11,11 +9,7 @@ exports.handler = async (event) => {
   }
 
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: '',
-    }
+    return { statusCode: 200, headers, body: '' }
   }
 
   if (event.httpMethod !== 'POST') {
@@ -27,7 +21,9 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { to, subject, message, attachment } = JSON.parse(event.body)
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+
+    const { to, subject, message } = JSON.parse(event.body)
 
     if (!to || !subject || !message) {
       return {
@@ -37,59 +33,25 @@ exports.handler = async (event) => {
       }
     }
 
-    const emailData = {
+    await sgMail.send({
       to: to,
-      from: {
-        email: 'nsun0014@student.monash.edu',
-        name: 'WomenCare Platform',
-      },
+      from: 'nsun0014@student.monash.edu',
       subject: subject,
       text: message,
-      html: `<div style="font-family: Arial, sans-serif; padding: 20px;">
-        <p><strong>From:</strong> WomenCare Platform</p>
-        <p><strong>To:</strong> ${to}</p>
-        <p><strong>Subject:</strong> ${subject}</p>
-        <hr style="margin: 20px 0; border: 1px solid #ddd;">
-        <div style="margin-top: 20px;">
-          <strong>Message:</strong>
-          <p>${message.replace(/\n/g, '<br>')}</p>
-        </div>
-        <hr style="margin: 20px 0; border: 1px solid #ddd;">
-        <p style="color: #888; font-size: 12px;">Sent from WomenCare Platform</p>
-      </div>`,
-    }
-
-    if (attachment && attachment.content && attachment.filename) {
-      emailData.attachments = [
-        {
-          content: attachment.content,
-          filename: attachment.filename,
-          type: attachment.type || 'application/octet-stream',
-          disposition: 'attachment',
-        },
-      ]
-    }
-
-    await sgMail.send(emailData)
+      html: `<p>${message.replace(/\n/g, '<br>')}</p>`,
+    })
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({
-        success: true,
-        message: 'Email sent successfully',
-      }),
+      body: JSON.stringify({ success: true, message: 'Email sent' }),
     }
   } catch (error) {
-    console.error('Error sending email:', error)
-
+    console.error('Error:', error)
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({
-        error: 'Failed to send email',
-        details: error.message,
-      }),
+      body: JSON.stringify({ error: error.message }),
     }
   }
 }
