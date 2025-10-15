@@ -50,6 +50,16 @@
             <li class="nav-item" v-if="currentUser">
               <a
                 class="nav-link"
+                :class="{ active: currentPage === 'email' }"
+                href="#"
+                @click="navigateTo('email')"
+              >
+                <i class="fas fa-envelope me-1"></i>Send Email
+              </a>
+            </li>
+            <li class="nav-item" v-if="currentUser">
+              <a
+                class="nav-link"
                 :class="{ active: currentPage === 'reports' }"
                 href="#"
                 @click="navigateTo('reports')"
@@ -120,6 +130,7 @@
         v-if="currentPage === 'auth' && !currentUser"
         @login-success="handleLoginSuccess"
       />
+      <EmailForm v-if="currentPage === 'email' && currentUser" />
 
       <div v-if="currentPage === 'dashboard' && currentUser" class="container mt-4">
         <div class="row">
@@ -536,6 +547,7 @@ import Form from './components/Form.vue'
 import AuthSystem from './components/AuthSystem.vue'
 import RatingSystem from './components/RatingSystem.vue'
 import { sanitizeInput, logSecurityEvent } from './utils/security.js'
+import EmailForm from './components/EmailForm.vue'
 
 export default {
   name: 'App',
@@ -543,6 +555,7 @@ export default {
     Form,
     AuthSystem,
     RatingSystem,
+    EmailForm,
   },
   data() {
     return {
@@ -595,7 +608,7 @@ export default {
       if (!this.currentUser) {
         return false
       }
-      const userPages = ['dashboard', 'profile', 'rating', 'reports']
+      const userPages = ['dashboard', 'profile', 'rating', 'reports', 'email']
       if (userPages.includes(page)) {
         return true
       }
