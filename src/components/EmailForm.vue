@@ -8,7 +8,7 @@
           </div>
           <div class="card-body">
             <div class="alert alert-info mb-3">
-              <strong>From:</strong> WomenCare Platform (nsun0014@student.monash.edu)
+              <strong>From:</strong> WomenCare Platform (hisomi469@gmail.com)
             </div>
 
             <div v-if="errorMessage" class="alert alert-danger alert-dismissible">
@@ -18,7 +18,7 @@
 
             <div v-if="successMessage" class="alert alert-success alert-dismissible">
               <button type="button" class="btn-close" @click="successMessage = ''"></button>
-              <strong>Success!</strong> Email sent from nsun0014@student.monash.edu to {{ sentTo }}
+              <strong>Success!</strong> Email sent from hisomi469@gmail.com to {{ sentTo }}
             </div>
 
             <form @submit.prevent="sendEmail">
