@@ -68,6 +68,17 @@
               </a>
             </li>
 
+            <li class="nav-item" v-if="currentUser">
+              <a
+                class="nav-link"
+                :class="{ active: currentPage === 'tables' }"
+                href="#"
+                @click="navigateTo('tables')"
+              >
+                <i class="fas fa-table me-1"></i>Data Tables
+              </a>
+            </li>
+
             <li class="nav-item" v-if="isAdmin">
               <a
                 class="nav-link"
@@ -131,6 +142,7 @@
         @login-success="handleLoginSuccess"
       />
       <EmailForm v-if="currentPage === 'email' && currentUser" />
+      <DataTables v-if="currentPage === 'tables' && currentUser" />
 
       <div v-if="currentPage === 'dashboard' && currentUser" class="container mt-4">
         <div class="row">
@@ -548,6 +560,7 @@ import AuthSystem from './components/AuthSystem.vue'
 import RatingSystem from './components/RatingSystem.vue'
 import { sanitizeInput, logSecurityEvent } from './utils/security.js'
 import EmailForm from './components/EmailForm.vue'
+import DataTables from './components/DataTables.vue'
 
 export default {
   name: 'App',
@@ -556,6 +569,7 @@ export default {
     AuthSystem,
     RatingSystem,
     EmailForm,
+    DataTables,
   },
   data() {
     return {
@@ -608,7 +622,7 @@ export default {
       if (!this.currentUser) {
         return false
       }
-      const userPages = ['dashboard', 'profile', 'rating', 'reports', 'email']
+      const userPages = ['dashboard', 'profile', 'rating', 'reports', 'email', 'tables']
       if (userPages.includes(page)) {
         return true
       }
@@ -653,6 +667,8 @@ export default {
           'Create health profiles',
           'Rate platform',
           'View personal reports',
+          'Send emails',
+          'View data tables',
         ],
         admin: [
           'All user permissions',
