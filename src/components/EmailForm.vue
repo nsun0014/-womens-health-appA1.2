@@ -2,92 +2,59 @@
   <div class="container mt-4">
     <div class="row justify-content-center">
       <div class="col-md-8">
-        <div class="card">
+        <div class="card shadow-sm">
           <div class="card-header bg-primary text-white">
-            <h4 class="mb-0"><i class="fas fa-envelope me-2"></i>Send Email with Attachment</h4>
+            <h4 class="mb-0"><i class="fas fa-envelope me-2"></i>Send Email</h4>
           </div>
+
           <div class="card-body">
-            <div class="alert alert-info mb-3">
-              <strong>From:</strong> WomenCare Platform (hisomi469@gmail.com)
-            </div>
-
-            <div v-if="errorMessage" class="alert alert-danger alert-dismissible">
-              <button type="button" class="btn-close" @click="errorMessage = ''"></button>
-              {{ errorMessage }}
-            </div>
-
-            <div v-if="successMessage" class="alert alert-success alert-dismissible">
-              <button type="button" class="btn-close" @click="successMessage = ''"></button>
-              <strong>Success!</strong> {{ successMessage }}
-            </div>
-
             <form @submit.prevent="sendEmail">
               <div class="mb-3">
-                <label class="form-label">To Email *</label>
+                <label class="form-label">To</label>
                 <input
                   type="email"
                   class="form-control"
-                  v-model="formData.to"
+                  v-model="to"
                   required
                   placeholder="recipient@example.com"
                 />
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Subject *</label>
+                <label class="form-label">Subject</label>
                 <input
                   type="text"
                   class="form-control"
-                  v-model="formData.subject"
+                  v-model="subject"
                   required
-                  placeholder="Email subject"
+                  placeholder="Enter email subject"
                 />
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Message *</label>
+                <label class="form-label">Message</label>
                 <textarea
                   class="form-control"
-                  v-model="formData.message"
+                  v-model="message"
                   rows="6"
                   required
-                  placeholder="Enter your message here..."
+                  placeholder="Write your message here..."
                 ></textarea>
               </div>
 
-              <div class="mb-3">
-                <label class="form-label">Attachment (Optional)</label>
-                <input
-                  type="file"
-                  class="form-control"
-                  @change="handleFileUpload"
-                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-                  ref="fileInput"
-                />
-                <small class="text-muted">
-                  Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG (Max 5MB)
-                </small>
-                <div v-if="attachmentInfo" class="mt-2">
-                  <span class="badge bg-info">
-                    <i class="fas fa-paperclip me-1"></i>
-                    {{ attachmentInfo.name }} ({{ formatFileSize(attachmentInfo.size) }})
-                    <button
-                      type="button"
-                      class="btn-close btn-close-white ms-2"
-                      @click="removeAttachment"
-                      style="font-size: 0.6rem"
-                    ></button>
-                  </span>
-                </div>
-              </div>
-
-              <button type="submit" class="btn btn-primary" :disabled="isLoading">
-                <span v-if="isLoading">
-                  <i class="fas fa-spinner fa-spin me-2"></i>Sending...
-                </span>
+              <button type="submit" class="btn btn-primary" :disabled="loading">
+                <span v-if="loading"> <i class="fas fa-spinner fa-spin me-2"></i>Sending... </span>
                 <span v-else> <i class="fas fa-paper-plane me-2"></i>Send Email </span>
               </button>
             </form>
+
+            <div v-if="successMessage" class="alert alert-success mt-3">
+              <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+            </div>
+
+            <div v-if="errorMessage" class="alert alert-danger mt-3">
+              <i class="fas fa-times-circle me-2"></i>{{ errorMessage }}
+            </div>
           </div>
         </div>
       </div>
@@ -100,113 +67,31 @@ export default {
   name: 'EmailForm',
   data() {
     return {
-      formData: {
-        to: '',
-        subject: '',
-        message: '',
-      },
-      attachment: null,
-      attachmentInfo: null,
-      isLoading: false,
-      errorMessage: '',
+      to: '',
+      subject: '',
+      message: '',
+      loading: false,
       successMessage: '',
+      errorMessage: '',
     }
   },
   methods: {
-    handleFileUpload(event) {
-      const file = event.target.files[0]
-      if (!file) return
-
-      const maxSize = 5 * 1024 * 1024
-      if (file.size > maxSize) {
-        this.errorMessage = 'File size must be less than 5MB'
-        event.target.value = ''
-        return
-      }
-
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        this.attachment = {
-          content: e.target.result.split(',')[1],
-          filename: file.name,
-          type: file.type,
-        }
-        this.attachmentInfo = {
-          name: file.name,
-          size: file.size,
-        }
-      }
-      reader.readAsDataURL(file)
-    },
-
-    removeAttachment() {
-      this.attachment = null
-      this.attachmentInfo = null
-      if (this.$refs.fileInput) {
-        this.$refs.fileInput.value = ''
-      }
-    },
-
-    formatFileSize(bytes) {
-      if (bytes === 0) return '0 Bytes'
-      const k = 1024
-      const sizes = ['Bytes', 'KB', 'MB']
-      const i = Math.floor(Math.log(bytes) / Math.log(k))
-      return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
-    },
-
     async sendEmail() {
-      this.isLoading = true
-      this.errorMessage = ''
+      this.loading = true
       this.successMessage = ''
+      this.errorMessage = ''
 
       try {
-        // 构建请求数据
-        const requestData = {
-          to: this.formData.to,
-          subject: this.formData.subject,
-          message: this.formData.message,
-        }
-
-        // 如果有附件，添加到请求中
-        if (this.attachment) {
-          requestData.attachment = this.attachment
-        }
-
-        console.log('Sending email to Firebase Function...')
-
-        // 调用 Firebase Cloud Function
-        const response = await fetch(
-          'https://us-central1-women-health1.cloudfunctions.net/sendEmail',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestData),
-          },
-        )
-
-        const data = await response.json()
-        console.log('Response:', data)
-
-        if (!response.ok) {
-          throw new Error(data.error || data.details || 'Failed to send email')
-        }
-
-        // 成功
-        this.successMessage = `Email sent successfully to ${this.formData.to}!`
-
-        // 清空表单
-        this.formData.to = ''
-        this.formData.subject = ''
-        this.formData.message = ''
-        this.removeAttachment()
-      } catch (error) {
-        console.error('Error sending email:', error)
-        this.errorMessage = `Failed to send email: ${error.message}`
+        // 原版只是模拟发送，不调用外部 API
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+        this.successMessage = `Email successfully sent to ${this.to}`
+        this.to = ''
+        this.subject = ''
+        this.message = ''
+      } catch (err) {
+        this.errorMessage = 'Failed to send email. Please try again.'
       } finally {
-        this.isLoading = false
+        this.loading = false
       }
     },
   },
@@ -215,11 +100,7 @@ export default {
 
 <style scoped>
 .card {
+  border: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.badge {
-  font-size: 0.9rem;
-  padding: 0.5rem;
 }
 </style>

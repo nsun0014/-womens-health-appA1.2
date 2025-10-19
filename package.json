@@ -20,6 +20,7 @@
     "bootstrap": "^5.3.8",
     "chart.js": "^4.5.1",
     "dotenv": "^17.2.3",
+    "emailjs-com": "^3.2.0",
     "firebase": "^12.4.0",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.31",
