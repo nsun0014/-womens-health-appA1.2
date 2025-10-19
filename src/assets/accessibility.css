@@ -1,0 +1,495 @@
+/* ============================================
+   WCAG 2.1 AA Level Accessibility Styles
+   ============================================ */
+
+/* Base font size variable */
+:root {
+  --base-font-size: 16px;
+  --focus-color: #ffc107;
+  --focus-width: 3px;
+}
+
+html {
+  font-size: var(--base-font-size);
+  scroll-behavior: smooth;
+}
+
+/* ============================================
+   1. Keyboard Navigation & Focus Styles
+   ============================================ */
+
+/* Enhanced focus indicators */
+*:focus {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+/* Skip navigation for keyboard users */
+.skip-navigation {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #0d6efd;
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 10000;
+  border-radius: 0 0 4px 0;
+}
+
+.skip-navigation:focus {
+  top: 0;
+}
+
+/* Focus visible for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse users, keep for keyboard */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   2. Color Contrast (WCAG AA: 4.5:1)
+   ============================================ */
+
+/* Ensure text has sufficient contrast */
+body {
+  color: #212529; /* Contrast ratio: 16.1:1 on white */
+  background-color: #ffffff;
+}
+
+/* Link colors with proper contrast */
+a {
+  color: #0056b3; /* Contrast ratio: 7.5:1 on white */
+  text-decoration: underline;
+}
+
+a:hover,
+a:focus {
+  color: #003d82;
+  text-decoration: underline;
+}
+
+/* Button contrast */
+.btn-primary {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  color: #ffffff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #003d82;
+  border-color: #003d82;
+}
+
+/* Alert contrast */
+.alert {
+  border-width: 2px;
+}
+
+.alert-success {
+  background-color: #d1e7dd;
+  border-color: #0f5132;
+  color: #0f5132;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border-color: #842029;
+  color: #842029;
+}
+
+.alert-info {
+  background-color: #cff4fc;
+  border-color: #055160;
+  color: #055160;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  border-color: #664d03;
+  color: #664d03;
+}
+
+/* ============================================
+   3. Typography & Readability
+   ============================================ */
+
+/* Readable font sizes */
+body {
+  font-size: 1rem;
+  line-height: 1.6;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.3;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+h2 {
+  font-size: 2rem;
+}
+h3 {
+  font-size: 1.75rem;
+}
+h4 {
+  font-size: 1.5rem;
+}
+h5 {
+  font-size: 1.25rem;
+}
+h6 {
+  font-size: 1rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+/* Readable text width */
+.readable-width {
+  max-width: 75ch;
+}
+
+/* ============================================
+   4. Form Accessibility
+   ============================================ */
+
+/* Form labels must be visible and associated */
+label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+/* Required field indicator */
+.required::after {
+  content: ' *';
+  color: #dc3545;
+}
+
+/* Form inputs with better contrast */
+.form-control,
+.form-select {
+  border: 2px solid #495057;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
+}
+
+/* Error state */
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: #dc3545;
+  border-width: 2px;
+}
+
+.invalid-feedback {
+  display: block;
+  color: #842029;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Success state */
+.form-control.is-valid,
+.form-select.is-valid {
+  border-color: #198754;
+  border-width: 2px;
+}
+
+.valid-feedback {
+  display: block;
+  color: #0f5132;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* ============================================
+   5. Interactive Elements
+   ============================================ */
+
+/* Buttons must have sufficient size (WCAG: 44x44px min) */
+button,
+.btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s ease-in-out;
+}
+
+/* Disabled state must be clear */
+button:disabled,
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Links must be distinguishable */
+a:not(.btn) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ============================================
+   6. Images & Media
+   ============================================ */
+
+/* All images should have alt text */
+img:not([alt]) {
+  border: 3px solid #dc3545;
+}
+
+/* Decorative images */
+img[alt=''],
+img[role='presentation'] {
+  border: none;
+}
+
+/* Icons should be hidden from screen readers */
+.icon-decorative {
+  aria-hidden: true;
+}
+
+/* ============================================
+   7. Tables
+   ============================================ */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+th,
+td {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  text-align: left;
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #212529;
+}
+
+/* Zebra striping for better readability */
+tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+/* ============================================
+   8. Screen Reader Only Content
+   ============================================ */
+
+.sr-only,
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-focusable:focus,
+.visually-hidden-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* ============================================
+   9. High Contrast Mode
+   ============================================ */
+
+.high-contrast {
+  filter: contrast(1.5);
+}
+
+.high-contrast a {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.high-contrast button,
+.high-contrast .btn {
+  border: 2px solid currentColor;
+}
+
+/* ============================================
+   10. Responsive & Touch Targets
+   ============================================ */
+
+/* Ensure touch targets are large enough on mobile */
+@media (max-width: 768px) {
+  button,
+  .btn,
+  a {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* ============================================
+   11. Animation & Motion
+   ============================================ */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================
+   12. Loading States
+   ============================================ */
+
+.loading {
+  position: relative;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #0056b3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* ============================================
+   13. Error & Success Messages
+   ============================================ */
+
+.message {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  border: 2px solid;
+}
+
+.message-success {
+  background-color: #d1e7dd;
+  border-color: #0f5132;
+  color: #0f5132;
+}
+
+.message-error {
+  background-color: #f8d7da;
+  border-color: #842029;
+  color: #842029;
+}
+
+.message-info {
+  background-color: #cff4fc;
+  border-color: #055160;
+  color: #055160;
+}
+
+/* ============================================
+   14. Print Styles
+   ============================================ */
+
+@media print {
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: ' (' attr(href) ')';
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}

@@ -1,22 +1,28 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDujXO1r7b3xkIEiW4MGcIfF9H5vsrmHR4',
-  authDomain: 'womencare-8e0d2.firebaseapp.com',
-  projectId: 'womencare-8e0d2',
-  storageBucket: 'womencare-8e0d2.firebasestorage.app',
-  messagingSenderId: '176516747545',
-  appId: '1:176516747545:web:4674e392b8a18f9ee9b588',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
+
+console.log('Firebase config loaded:', {
+  apiKey: firebaseConfig.apiKey ? 'Loaded ✅' : 'Missing ❌',
+  authDomain: firebaseConfig.authDomain ? 'Loaded ✅' : 'Missing ❌',
+  projectId: firebaseConfig.projectId ? 'Loaded ✅' : 'Missing ❌',
+})
 
 const app = initializeApp(firebaseConfig)
 
-const auth = getAuth(app)
+export const auth = getAuth(app)
+export const db = getFirestore(app)
+export const googleProvider = new GoogleAuthProvider()
 
-const googleProvider = new GoogleAuthProvider()
 googleProvider.setCustomParameters({
   prompt: 'select_account',
 })
-
-export { auth, googleProvider }

@@ -77,7 +77,8 @@
                     />
                   </div>
                   <div v-if="loginErrors.email" class="invalid-feedback d-block">
-                    <i class="fas fa-exclamation-circle me-1"></i>{{ loginErrors.email }}
+                    <i class="fas fa-exclamation-circle me-1" aria-hidden="true"></i
+                    >{{ loginErrors.email }}
                   </div>
                 </div>
 
@@ -95,17 +96,20 @@
                       @blur="validateLoginField('password')"
                       @input="clearLoginError('password')"
                       :disabled="rateLimitWarning"
-                      autocomplete="current-password"
-                      maxlength="128"
-                      required
+                      :aria-busy="loginLoading ? 'true' : 'false'"
                     />
+                    autocomplete="current-password" maxlength="128" required />
                     <button
                       type="button"
                       class="btn btn-outline-secondary"
                       @click="showLoginPassword = !showLoginPassword"
                       :disabled="rateLimitWarning"
+                      :aria-label="showLoginPassword ? 'Hide password' : 'Show password'"
                     >
-                      <i :class="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                      <i
+                        :class="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+                        aria-hidden="true"
+                      ></i>
                     </button>
                   </div>
                   <div v-if="loginErrors.password" class="invalid-feedback d-block">

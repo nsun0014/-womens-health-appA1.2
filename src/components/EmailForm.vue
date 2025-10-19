@@ -18,7 +18,7 @@
 
             <div v-if="successMessage" class="alert alert-success alert-dismissible">
               <button type="button" class="btn-close" @click="successMessage = ''"></button>
-              <strong>Success!</strong> Email sent from hisomi469@gmail.com to {{ sentTo }}
+              <strong>Success!</strong> {{ successMessage }}
             </div>
 
             <form @submit.prevent="sendEmail">
@@ -62,6 +62,7 @@
                   class="form-control"
                   @change="handleFileUpload"
                   accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                  ref="fileInput"
                 />
                 <small class="text-muted">
                   Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG (Max 5MB)
@@ -109,7 +110,6 @@ export default {
       isLoading: false,
       errorMessage: '',
       successMessage: '',
-      sentTo: '',
     }
   },
   methods: {
@@ -117,19 +117,17 @@ export default {
       const file = event.target.files[0]
       if (!file) return
 
-      // Check file size (5MB limit)
-      const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+      const maxSize = 5 * 1024 * 1024
       if (file.size > maxSize) {
         this.errorMessage = 'File size must be less than 5MB'
         event.target.value = ''
         return
       }
 
-      // Read file as base64
       const reader = new FileReader()
       reader.onload = (e) => {
         this.attachment = {
-          content: e.target.result.split(',')[1], // Remove data:image/png;base64, prefix
+          content: e.target.result.split(',')[1],
           filename: file.name,
           type: file.type,
         }
@@ -144,9 +142,9 @@ export default {
     removeAttachment() {
       this.attachment = null
       this.attachmentInfo = null
-      // Clear file input
-      const fileInput = document.querySelector('input[type="file"]')
-      if (fileInput) fileInput.value = ''
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = ''
+      }
     },
 
     formatFileSize(bytes) {
@@ -163,17 +161,21 @@ export default {
       this.successMessage = ''
 
       try {
-        const payload = {
+        // 构建请求数据
+        const requestData = {
           to: this.formData.to,
           subject: this.formData.subject,
           message: this.formData.message,
         }
 
-        // Add attachment if present
+        // 如果有附件，添加到请求中
         if (this.attachment) {
-          payload.attachment = this.attachment
+          requestData.attachment = this.attachment
         }
 
+        console.log('Sending email to Firebase Function...')
+
+        // 调用 Firebase Cloud Function
         const response = await fetch(
           'https://us-central1-women-health1.cloudfunctions.net/sendEmail',
           {
@@ -181,24 +183,28 @@ export default {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(payload),
+            body: JSON.stringify(requestData),
           },
         )
 
         const data = await response.json()
+        console.log('Response:', data)
 
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to send email')
+          throw new Error(data.error || data.details || 'Failed to send email')
         }
 
-        this.successMessage = 'Email sent successfully!'
-        this.sentTo = this.formData.to
+        // 成功
+        this.successMessage = `Email sent successfully to ${this.formData.to}!`
+
+        // 清空表单
         this.formData.to = ''
         this.formData.subject = ''
         this.formData.message = ''
         this.removeAttachment()
       } catch (error) {
-        this.errorMessage = error.message
+        console.error('Error sending email:', error)
+        this.errorMessage = `Failed to send email: ${error.message}`
       } finally {
         this.isLoading = false
       }

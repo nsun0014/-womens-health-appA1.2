@@ -4,18 +4,9 @@
 
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <nav
-      class="navbar navbar-expand-lg navbar-dark bg-primary"
-      role="navigation"
-      aria-label="Main navigation"
-    >
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary" role="navigation" aria-label="Main navigation">
       <div class="container">
-        <a
-          class="navbar-brand"
-          href="#"
-          @click.prevent="navigateTo('dashboard')"
-          aria-label="WomenCare home"
-        >
+        <a class="navbar-brand" href="#" @click.prevent="navigateTo('dashboard')" aria-label="WomenCare home">
           <i class="fas fa-heart me-2" aria-hidden="true"></i>WomenCare
         </a>
         <button
@@ -32,7 +23,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
             <li class="nav-item" v-if="currentUser">
-              <a
+              
                 class="nav-link"
                 :class="{ active: currentPage === 'dashboard' }"
                 href="#"
@@ -44,7 +35,7 @@
             </li>
 
             <li class="nav-item" v-if="currentUser">
-              <a
+              
                 class="nav-link"
                 :class="{ active: currentPage === 'profile' }"
                 href="#"
@@ -56,7 +47,7 @@
             </li>
 
             <li class="nav-item" v-if="currentUser">
-              <a
+              
                 class="nav-link"
                 :class="{ active: currentPage === 'rating' }"
                 href="#"
@@ -68,7 +59,7 @@
             </li>
 
             <li class="nav-item" v-if="currentUser">
-              <a
+              
                 class="nav-link"
                 :class="{ active: currentPage === 'email' }"
                 href="#"
@@ -78,9 +69,8 @@
                 <i class="fas fa-envelope me-1" aria-hidden="true"></i>Send Email
               </a>
             </li>
-
             <li class="nav-item" v-if="currentUser">
-              <a
+              
                 class="nav-link"
                 :class="{ active: currentPage === 'reports' }"
                 href="#"
@@ -92,7 +82,7 @@
             </li>
 
             <li class="nav-item" v-if="currentUser">
-              <a
+              
                 class="nav-link"
                 :class="{ active: currentPage === 'tables' }"
                 href="#"
@@ -104,7 +94,7 @@
             </li>
 
             <li class="nav-item" v-if="currentUser">
-              <a
+              
                 class="nav-link"
                 :class="{ active: currentPage === 'map' }"
                 href="#"
@@ -116,7 +106,7 @@
             </li>
 
             <li class="nav-item" v-if="isAdmin">
-              <a
+              
                 class="nav-link"
                 :class="{ active: currentPage === 'admin' }"
                 href="#"
@@ -128,7 +118,7 @@
             </li>
 
             <li class="nav-item" v-if="isAdmin">
-              <a
+              
                 class="nav-link"
                 :class="{ active: currentPage === 'userManagement' }"
                 href="#"
@@ -156,7 +146,6 @@
                 </span>
               </span>
             </li>
-
             <li class="nav-item" v-if="currentUser">
               <a class="nav-link" href="#" @click.prevent="logout" aria-label="Logout">
                 <i class="fas fa-sign-out-alt me-1" aria-hidden="true"></i>Logout
@@ -166,21 +155,11 @@
         </div>
       </div>
     </nav>
-    <div
-      v-if="accessDenied"
-      class="alert alert-warning alert-dismissible fade show"
-      role="alert"
-      aria-live="polite"
-    >
+    <div v-if="accessDenied" class="alert alert-warning alert-dismissible fade show" role="alert" aria-live="polite">
       <div class="container">
         <i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i>
         <strong>Access Denied:</strong> {{ accessDeniedMessage }}
-        <button
-          type="button"
-          class="btn-close"
-          @click="accessDenied = false"
-          aria-label="Close alert"
-        ></button>
+        <button type="button" class="btn-close" @click="accessDenied = false" aria-label="Close alert"></button>
       </div>
     </div>
 
@@ -217,8 +196,7 @@
                         v-for="permission in getUserPermissions(currentUser.role)"
                         :key="permission"
                       >
-                        <i class="fas fa-check text-success me-1" aria-hidden="true"></i
-                        >{{ permission }}
+                        <i class="fas fa-check text-success me-1" aria-hidden="true"></i>{{ permission }}
                       </li>
                     </ul>
                   </div>
@@ -287,14 +265,6 @@
             </div>
           </div>
 
-          <div class="row mt-4" v-if="currentUser.role === 'user'">
-            <div class="col-12">
-              <HealthAI @ai-query-made="handleAIQuery" />
-            </div>
-          </div>
-        </div>
-
-        <div v-if="currentUser.role === 'admin'" class="col-12">
           <div v-if="currentUser.role === 'admin'" class="col-12">
             <div class="row">
               <div class="col-md-3 mb-3">
@@ -337,9 +307,7 @@
 
             <div class="card">
               <div class="card-header">
-                <h2 class="h5">
-                  <i class="fas fa-tools me-2" aria-hidden="true"></i>Admin Quick Actions
-                </h2>
+                <h2 class="h5"><i class="fas fa-tools me-2" aria-hidden="true"></i>Admin Quick Actions</h2>
               </div>
               <div class="card-body">
                 <div class="row">
@@ -380,7 +348,6 @@
         v-if="currentPage === 'rating' && currentUser"
         @rating-updated="handleRatingUpdate"
       />
-
       <div v-if="currentPage === 'reports' && currentUser" class="container mt-4">
         <h1><i class="fas fa-chart-line me-2" aria-hidden="true"></i>Reports Dashboard</h1>
 
@@ -391,18 +358,13 @@
                 <h2 class="h5">My Personal Health Reports</h2>
               </div>
               <div class="card-body">
-                <p class="text-muted mb-3">
-                  View and export your personal health data and progress
-                </p>
-
+                <p class="text-muted mb-3">View and export your personal health data and progress</p>
+                
                 <div class="row mb-4">
                   <div class="col-md-4">
                     <div class="card bg-light">
                       <div class="card-body text-center">
-                        <i
-                          class="fas fa-file-medical fa-2x text-primary mb-2"
-                          aria-hidden="true"
-                        ></i>
+                        <i class="fas fa-file-medical fa-2x text-primary mb-2" aria-hidden="true"></i>
                         <h3 class="h4">{{ userStats.profilesCreated }}</h3>
                         <p class="mb-0 small">Health Profiles</p>
                       </div>
@@ -434,20 +396,18 @@
                 </div>
 
                 <div class="d-flex gap-2 flex-wrap">
-                  <button
+                  <button 
                     class="btn btn-primary"
                     @click="exportMyReport"
-                    aria-label="Export my report as PDF"
-                  >
+                    aria-label="Export my report as PDF">
                     <i class="fas fa-file-pdf me-2" aria-hidden="true"></i>
                     Export Report (PDF)
                   </button>
-
-                  <button
+                  
+                  <button 
                     class="btn btn-outline-primary"
                     @click="exportUserDataCSV"
-                    aria-label="Export my data as CSV"
-                  >
+                    aria-label="Export my data as CSV">
                     <i class="fas fa-file-csv me-2" aria-hidden="true"></i>
                     Export Data (CSV)
                   </button>
@@ -501,56 +461,28 @@
                     </ul>
                   </div>
                 </div>
-
-                <div class="row mt-4">
-                  <div class="col-md-6 mb-4">
-                    <div class="card">
-                      <div class="card-body">
-                        <StatsChart
-                          :chartData="ratingsChartData"
-                          chartType="bar"
-                          chartTitle="Platform Ratings Distribution"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6 mb-4">
-                    <div class="card">
-                      <div class="card-body">
-                        <StatsChart
-                          :chartData="userRolesChartData"
-                          chartType="doughnut"
-                          chartTitle="User Roles Distribution"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
+                
                 <div class="mt-4 d-flex gap-2 flex-wrap">
-                  <button
+                  <button 
                     class="btn btn-success"
                     @click="exportAdminReport"
-                    aria-label="Export full admin report as PDF"
-                  >
+                    aria-label="Export full admin report as PDF">
                     <i class="fas fa-file-pdf me-2" aria-hidden="true"></i>
                     Export Full Report (PDF)
                   </button>
-
-                  <button
+                  
+                  <button 
                     class="btn btn-outline-success"
                     @click="exportAllUsersCSV"
-                    aria-label="Export all users data as CSV"
-                  >
+                    aria-label="Export all users data as CSV">
                     <i class="fas fa-users me-2" aria-hidden="true"></i>
                     Export Users (CSV)
                   </button>
-
-                  <button
+                  
+                  <button 
                     class="btn btn-outline-info"
                     @click="exportRatingsCSV"
-                    aria-label="Export ratings data as CSV"
-                  >
+                    aria-label="Export ratings data as CSV">
                     <i class="fas fa-star me-2" aria-hidden="true"></i>
                     Export Ratings (CSV)
                   </button>
@@ -560,7 +492,6 @@
           </div>
         </div>
       </div>
-
       <div v-if="currentPage === 'admin' && isAdmin" class="container mt-4">
         <h1><i class="fas fa-cog me-2" aria-hidden="true"></i>Admin Panel</h1>
 
@@ -727,15 +658,7 @@ import EmailForm from './components/EmailForm.vue'
 import DataTables from './components/DataTables.vue'
 import MapLocation from './components/MapLocation.vue'
 import AccessibilityHelper from './components/AccessibilityHelper.vue'
-import StatsChart from './components/StatsChart.vue'
-import HealthAI from './components/HealthAI.vue'
-
-import {
-  exportToCSV,
-  exportToPDF,
-  exportUserReportToPDF,
-  exportAdminReportToPDF,
-} from './utils/exportUtils.js'
+import { exportToCSV, exportToPDF, exportUserReportToPDF, exportAdminReportToPDF } from './utils/exportUtils.js'
 
 export default {
   name: 'App',
@@ -747,8 +670,6 @@ export default {
     DataTables,
     MapLocation,
     AccessibilityHelper,
-    StatsChart,
-    HealthAI,
   },
   data() {
     return {
@@ -779,68 +700,17 @@ export default {
     isUser() {
       return this.currentUser && this.currentUser.role === 'user'
     },
-
-    ratingsChartData() {
-      const ratings = this.recentRatings
-      const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-
-      ratings.forEach((rating) => {
-        if (rating.score >= 1 && rating.score <= 5) {
-          distribution[rating.score]++
-        }
-      })
-
-      return {
-        labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-        datasets: [
-          {
-            label: 'Number of Ratings',
-            data: [
-              distribution[1],
-              distribution[2],
-              distribution[3],
-              distribution[4],
-              distribution[5],
-            ],
-            backgroundColor: [
-              'rgba(220, 53, 69, 0.8)',
-              'rgba(255, 193, 7, 0.8)',
-              'rgba(13, 110, 253, 0.8)',
-              'rgba(25, 135, 84, 0.8)',
-              'rgba(13, 202, 240, 0.8)',
-            ],
-            borderColor: [
-              'rgb(220, 53, 69)',
-              'rgb(255, 193, 7)',
-              'rgb(13, 110, 253)',
-              'rgb(25, 135, 84)',
-              'rgb(13, 202, 240)',
-            ],
-            borderWidth: 2,
-          },
-        ],
-      }
-    },
-
-    userRolesChartData() {
-      return {
-        labels: ['Regular Users', 'Administrators'],
-        datasets: [
-          {
-            label: 'User Distribution',
-            data: [this.getRegularUsersCount(), this.getAdminUsersCount()],
-            backgroundColor: ['rgba(13, 110, 253, 0.8)', 'rgba(220, 53, 69, 0.8)'],
-            borderColor: ['rgb(13, 110, 253)', 'rgb(220, 53, 69)'],
-            borderWidth: 2,
-          },
-        ],
-      }
-    },
   },
-
   methods: {
     sanitizeInput(input) {
       return sanitizeInput(input)
+    },
+
+    announce(message) {
+      this.liveAnnouncement = message
+      setTimeout(() => {
+        this.liveAnnouncement = ''
+      }, 1000)
     },
 
     navigateTo(page) {
@@ -936,7 +806,106 @@ export default {
         `User Details:\nName: ${user.name}\nEmail: ${user.email}\nRole: ${this.getUserRoleDisplay(user.role)}\nJoined: ${this.formatDate(user.createdAt || '2024-01-01')}`,
       )
     },
+    exportMyReport() {
+      if (!this.currentUser) return
 
+      const success = exportUserReportToPDF(this.currentUser, this.userStats)
+      
+      if (success) {
+        this.showMobileNotification('Report exported successfully!')
+        logSecurityEvent('USER_REPORT_EXPORTED', {
+          userId: this.currentUser.id,
+          format: 'PDF'
+        })
+      }
+    },
+
+    exportUserDataCSV() {
+      if (!this.currentUser) return
+
+      const userData = [{
+        Name: this.currentUser.name,
+        Email: this.currentUser.email,
+        Role: this.currentUser.role,
+        'Profiles Created': this.userStats.profilesCreated,
+        'Ratings Given': this.userStats.ratingsGiven,
+        'Days Since Joined': this.userStats.daysSinceJoined,
+        'Generated Date': new Date().toLocaleString()
+      }]
+
+      const success = exportToCSV(userData, `${this.currentUser.name}_Data`)
+      
+      if (success) {
+        this.showMobileNotification('Data exported as CSV!')
+        logSecurityEvent('USER_DATA_EXPORTED', {
+          userId: this.currentUser.id,
+          format: 'CSV'
+        })
+      }
+    },
+
+    exportAdminReport() {
+      if (!this.isAdmin) return
+
+      const success = exportAdminReportToPDF(this.adminStats, this.allUsers)
+      
+      if (success) {
+        this.showMobileNotification('Admin report exported successfully!')
+        logSecurityEvent('ADMIN_REPORT_EXPORTED', {
+          userId: this.currentUser.id,
+          totalUsers: this.adminStats.totalUsers
+        })
+      }
+    },
+
+    exportAllUsersCSV() {
+      if (!this.isAdmin) return
+
+      const usersData = this.allUsers.map(user => ({
+        Name: user.name,
+        Email: user.email,
+        Role: user.role,
+        'Registered Date': user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A',
+        Status: 'Active'
+      }))
+
+      const success = exportToCSV(usersData, 'All_Users_Data')
+      
+      if (success) {
+        this.showMobileNotification('User data exported as CSV!')
+        logSecurityEvent('ALL_USERS_EXPORTED', {
+          adminId: this.currentUser.id,
+          userCount: usersData.length,
+          format: 'CSV'
+        })
+      }
+    },
+
+    exportRatingsCSV() {
+      const ratings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
+      
+      if (ratings.length === 0) {
+        alert('No ratings data to export')
+        return
+      }
+
+      const ratingsData = ratings.map(rating => ({
+        User: rating.userName,
+        Score: rating.score,
+        Comment: rating.comment || 'No comment',
+        Date: new Date(rating.date).toLocaleString()
+      }))
+
+      const success = exportToCSV(ratingsData, 'Platform_Ratings')
+      
+      if (success) {
+        this.showMobileNotification('Ratings exported as CSV!')
+        logSecurityEvent('RATINGS_EXPORTED', {
+          userId: this.currentUser?.id,
+          count: ratingsData.length
+        })
+      }
+    },
     handleLoginSuccess(user) {
       this.currentUser = {
         ...user,
@@ -1068,123 +1037,6 @@ export default {
         userAgent: navigator.userAgent.substring(0, 100),
         timestamp: new Date().toISOString(),
       })
-    },
-
-    exportMyReport() {
-      if (!this.currentUser) return
-
-      const success = exportUserReportToPDF(this.currentUser, this.userStats)
-
-      if (success) {
-        this.showMobileNotification('Report exported successfully!')
-        logSecurityEvent('USER_REPORT_EXPORTED', {
-          userId: this.currentUser.id,
-          format: 'PDF',
-        })
-      }
-    },
-
-    exportUserDataCSV() {
-      if (!this.currentUser) return
-
-      const userData = [
-        {
-          Name: this.currentUser.name,
-          Email: this.currentUser.email,
-          Role: this.currentUser.role,
-          'Profiles Created': this.userStats.profilesCreated,
-          'Ratings Given': this.userStats.ratingsGiven,
-          'Days Since Joined': this.userStats.daysSinceJoined,
-          'Generated Date': new Date().toLocaleString(),
-        },
-      ]
-
-      const success = exportToCSV(userData, `${this.currentUser.name}_Data`)
-
-      if (success) {
-        this.showMobileNotification('Data exported as CSV!')
-        logSecurityEvent('USER_DATA_EXPORTED', {
-          userId: this.currentUser.id,
-          format: 'CSV',
-        })
-      }
-    },
-
-    exportAdminReport() {
-      if (!this.isAdmin) return
-
-      const success = exportAdminReportToPDF(this.adminStats, this.allUsers)
-
-      if (success) {
-        this.showMobileNotification('Admin report exported successfully!')
-        logSecurityEvent('ADMIN_REPORT_EXPORTED', {
-          userId: this.currentUser.id,
-          totalUsers: this.adminStats.totalUsers,
-        })
-      }
-    },
-
-    exportAllUsersCSV() {
-      if (!this.isAdmin) return
-
-      const usersData = this.allUsers.map((user) => ({
-        Name: user.name,
-        Email: user.email,
-        Role: user.role,
-        'Registered Date': user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A',
-        Status: 'Active',
-      }))
-
-      const success = exportToCSV(usersData, 'All_Users_Data')
-
-      if (success) {
-        this.showMobileNotification('User data exported as CSV!')
-        logSecurityEvent('ALL_USERS_EXPORTED', {
-          adminId: this.currentUser.id,
-          userCount: usersData.length,
-          format: 'CSV',
-        })
-      }
-    },
-
-    exportRatingsCSV() {
-      const ratings = JSON.parse(localStorage.getItem('platformRatings') || '[]')
-
-      if (ratings.length === 0) {
-        alert('No ratings data to export')
-        return
-      }
-
-      const ratingsData = ratings.map((rating) => ({
-        User: rating.userName,
-        Score: rating.score,
-        Comment: rating.comment || 'No comment',
-        Date: new Date(rating.date).toLocaleString(),
-      }))
-
-      const success = exportToCSV(ratingsData, 'Platform_Ratings')
-
-      if (success) {
-        this.showMobileNotification('Ratings exported as CSV!')
-        logSecurityEvent('RATINGS_EXPORTED', {
-          userId: this.currentUser?.id,
-          count: ratingsData.length,
-        })
-      }
-    },
-
-    handleAIQuery(queryData) {
-      console.log('AI Query made:', queryData)
-
-      const aiQueries = JSON.parse(localStorage.getItem('aiQueries') || '[]')
-      aiQueries.push({
-        ...queryData,
-        userId: this.currentUser?.id,
-        userName: this.currentUser?.name,
-      })
-      localStorage.setItem('aiQueries', JSON.stringify(aiQueries))
-
-      this.showMobileNotification('AI recommendation generated!')
     },
   },
 
